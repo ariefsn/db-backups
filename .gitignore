@@ -1,0 +1,4 @@
+backups/*
+db-backup
+.env
+.DS_Store

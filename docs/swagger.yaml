@@ -1,0 +1,331 @@
+basePath: /
+definitions:
+  database.BackupStats:
+    properties:
+      byStatus:
+        additionalProperties:
+          format: int64
+          type: integer
+        type: object
+      byType:
+        additionalProperties:
+          format: int64
+          type: integer
+        type: object
+      total:
+        type: integer
+    type: object
+  model.BackupListResponse:
+    properties:
+      backups:
+        items:
+          $ref: '#/definitions/model.BackupMetadata'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.BackupMetadata:
+    properties:
+      createdAt:
+        type: string
+      database:
+        type: string
+      error:
+        type: string
+      filePath:
+        type: string
+      fileSize:
+        type: integer
+      host:
+        type: string
+      id:
+        type: string
+      objectKey:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/model.BackupStatus'
+        description: pending, generating, completed, failed
+      timestamp:
+        type: string
+      type:
+        type: string
+    type: object
+  model.BackupRequest:
+    properties:
+      authSource:
+        example: admin
+        type: string
+      connectionUri:
+        example: mongodb://user:pass@host:port/db
+        type: string
+      database:
+        example: mydb
+        type: string
+      host:
+        example: localhost
+        type: string
+      password:
+        example: pass
+        type: string
+      port:
+        example: "5432"
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/model.BackupType'
+        example: postgre
+      username:
+        example: user
+        type: string
+      webhookUrl:
+        example: http://example.com/webhook
+        type: string
+    type: object
+  model.BackupResponse:
+    properties:
+      error:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  model.BackupStatus:
+    enum:
+    - pending
+    - generating
+    - completed
+    - failed
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusGenerating
+    - StatusCompleted
+    - StatusFailed
+  model.BackupType:
+    enum:
+    - postgre
+    - mysql
+    - mongo
+    - redis
+    type: string
+    x-enum-varnames:
+    - Postgres
+    - MySQL
+    - Mongo
+    - Redis
+host: localhost:8080
+info:
+  contact: {}
+  description: API for triggering database backups and managing them.
+  title: Database Backup API
+  version: "1.0"
+paths:
+  /backup:
+    post:
+      consumes:
+      - application/json
+      description: Queue a backup job for the specified database
+      parameters:
+      - description: Backup Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.BackupRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Backup started
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Trigger a database backup
+      tags:
+      - backup
+  /backups:
+    get:
+      description: Get a paginated list of all backups with optional filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Comma-separated status values (pending,generating,completed,failed)
+        in: query
+        name: statuses
+        type: string
+      - description: Search keyword (searches in database, host, type)
+        in: query
+        name: search
+        type: string
+      - default: createdAt
+        description: Field to order by
+        in: query
+        name: orderBy
+        type: string
+      - default: desc
+        description: Order direction (asc/desc)
+        in: query
+        name: orderDir
+        type: string
+      - description: Start date for filtering (RFC3339 format)
+        in: query
+        name: startDate
+        type: string
+      - description: End date for filtering (RFC3339 format)
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of backups
+          schema:
+            $ref: '#/definitions/model.BackupListResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: List all backups
+      tags:
+      - backup
+  /backups/{id}:
+    delete:
+      description: Delete a backup from both MongoDB and R2 storage
+      parameters:
+      - description: Backup ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Backup deleted successfully
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "404":
+          description: 'error: Backup not found'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Delete a backup
+      tags:
+      - backup
+    get:
+      description: Retrieve a single backup by ID
+      parameters:
+      - description: Backup ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Backup details
+          schema:
+            $ref: '#/definitions/model.BackupMetadata'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "404":
+          description: 'error: Backup not found'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Get a single backup
+      tags:
+      - backup
+  /backups/{id}/download:
+    get:
+      description: Generate a presigned URL to download a backup file from R2 storage
+      parameters:
+      - description: Backup ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Download URL
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'error: Bad request'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "404":
+          description: 'error: Backup not found'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Download a backup file
+      tags:
+      - backup
+  /backups/stats:
+    get:
+      description: Retrieve aggregated backup statistics by type and status
+      parameters:
+      - description: Start date for filtering (RFC3339 format)
+        in: query
+        name: startDate
+        type: string
+      - description: End date for filtering (RFC3339 format)
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Backup statistics
+          schema:
+            $ref: '#/definitions/database.BackupStats'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Get backup statistics
+      tags:
+      - backup
+swagger: "2.0"
