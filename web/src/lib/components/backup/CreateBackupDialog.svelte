@@ -22,7 +22,7 @@
 	let selectedDatabaseId = $state('');
 
 	// Form state
-	let connectionString = $state('');
+	let connectionUri = $state('');
 	let host = $state('');
 	let port = $state('');
 	let username = $state('');
@@ -42,7 +42,8 @@
 
 	onMount(async () => {
 		try {
-			databases = await DatabaseService.getDatabases();
+			const response = await DatabaseService.getDatabases();
+			databases = response.databases || [];
 			if (databases.length === 0) {
 				sourceMethod = 'manual';
 			} else {
@@ -74,7 +75,7 @@
 				};
 
 				if (useConnectionString) {
-					payload.connectionUri = connectionString;
+					payload.connectionUri = connectionUri;
 				} else {
 					payload.host = host;
 					payload.port = port;
@@ -136,7 +137,7 @@
 	}
 
 	function resetForm() {
-		connectionString = '';
+		connectionUri = '';
 		host = '';
 		port = '';
 		username = '';
@@ -162,10 +163,12 @@
 
 <Dialog.Root bind:open>
 	<Dialog.Trigger>
-		<Button>
-			<Plus class="h-4 w-4" />
-			Create Backup
-		</Button>
+		{#snippet child({ props })}
+			<Button {...props}>
+				<Plus class="h-4 w-4" />
+				Create Backup
+			</Button>
+		{/snippet}
 	</Dialog.Trigger>
 	<Dialog.Content class="sm:max-w-[600px]">
 		<Dialog.Header>
@@ -178,27 +181,38 @@
 		<form onsubmit={handleSubmit} class="grid gap-4 py-4">
 			{#if databases.length > 0}
 				<!-- Connection Source Toggle -->
-				<div class="flex items-center gap-4 rounded-lg border bg-muted/40 p-3 mb-2">
-					<Label class="flex-1 cursor-pointer">
-						<input
-							type="radio"
-							name="sourceMethod"
-							checked={sourceMethod === 'saved'}
-							onchange={() => (sourceMethod = 'saved')}
-							class="mr-2"
-						/>
-						Use Saved Database
-					</Label>
-					<Label class="flex-1 cursor-pointer">
-						<input
-							type="radio"
-							name="sourceMethod"
-							checked={sourceMethod === 'manual'}
-							onchange={() => (sourceMethod = 'manual')}
-							class="mr-2"
-						/>
-						New Connection
-					</Label>
+				<div class="flex items-center space-x-2">
+					<Label>Connection Source</Label>
+					<div class="flex items-center space-x-2 rounded-md border p-1 bg-muted/20">
+						<Label
+							class="cursor-pointer rounded-sm px-2 py-1 text-sm {sourceMethod === 'saved'
+								? 'bg-primary text-primary-foreground shadow-sm'
+								: 'text-muted-foreground hover:bg-muted/50'}"
+						>
+							<input
+								type="radio"
+								name="sourceMethod"
+								class="hidden"
+								bind:group={sourceMethod}
+								value="saved"
+							/>
+							Saved Database
+						</Label>
+						<Label
+							class="cursor-pointer rounded-sm px-2 py-1 text-sm {sourceMethod === 'manual'
+								? 'bg-primary text-primary-foreground shadow-sm'
+								: 'text-muted-foreground hover:bg-muted/50'}"
+						>
+							<input
+								type="radio"
+								name="sourceMethod"
+								class="hidden"
+								bind:group={sourceMethod}
+								value="manual"
+							/>
+							New Connection
+						</Label>
+					</div>
 				</div>
 			{/if}
 
@@ -233,35 +247,46 @@
 				</div>
 
 				<!-- Connection Method Toggle -->
-				<div class="flex items-center gap-4 rounded-lg border bg-muted/40 p-3">
-					<Label class="flex-1 cursor-pointer">
-						<input
-							type="radio"
-							name="connectionMethod"
-							checked={useConnectionString}
-							onchange={() => (useConnectionString = true)}
-							class="mr-2"
-						/>
-						Connection String
-					</Label>
-					<Label class="flex-1 cursor-pointer">
-						<input
-							type="radio"
-							name="connectionMethod"
-							checked={!useConnectionString}
-							onchange={() => (useConnectionString = false)}
-							class="mr-2"
-						/>
-						Manual
-					</Label>
+				<div class="flex items-center space-x-2">
+					<Label>Connection Method</Label>
+					<div class="flex items-center space-x-2 rounded-md border p-1 bg-muted/20">
+						<Label
+							class="cursor-pointer rounded-sm px-2 py-1 text-sm {useConnectionString
+								? 'bg-primary text-primary-foreground shadow-sm'
+								: 'text-muted-foreground hover:bg-muted/50'}"
+						>
+							<input
+								type="radio"
+								name="connectionMethod"
+								class="hidden"
+								bind:group={useConnectionString}
+								value={true}
+							/>
+							URI
+						</Label>
+						<Label
+							class="cursor-pointer rounded-sm px-2 py-1 text-sm {!useConnectionString
+								? 'bg-primary text-primary-foreground shadow-sm'
+								: 'text-muted-foreground hover:bg-muted/50'}"
+						>
+							<input
+								type="radio"
+								name="connectionMethod"
+								class="hidden"
+								bind:group={useConnectionString}
+								value={false}
+							/>
+							Manual
+						</Label>
+					</div>
 				</div>
 
 				{#if useConnectionString}
-					<!-- Connection String Input -->
+					<!-- Connection URI Input -->
 					<div class="space-y-2">
-						<Label>Connection String</Label>
+						<Label>Connection URI</Label>
 						<Input
-							bind:value={connectionString}
+							bind:value={connectionUri}
 							placeholder="postgresql://user:password@localhost:5432/dbname"
 							required
 						/>

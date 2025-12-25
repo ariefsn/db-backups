@@ -94,7 +94,7 @@
 			<p class="text-muted-foreground">Manage your database connections and scheduled backups.</p>
 		</div>
 		<Button onclick={handleAdd}>
-			<Plus class="mr-2 h-4 w-4" />
+			<Plus class="h-4 w-4" />
 			Add Database
 		</Button>
 	</div>
@@ -208,4 +208,4 @@
 	</div>
 </div>
 
-<DatabaseDialog bind:open={showDialog} database={selectedDatabase} on:saved={onSaved} />
+<DatabaseDialog bind:open={showDialog} database={selectedDatabase} onsaved={onSaved} />

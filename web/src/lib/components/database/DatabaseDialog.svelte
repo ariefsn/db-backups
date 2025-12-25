@@ -1,61 +1,68 @@
 <script lang="ts">
 	import type { model_Database } from '$lib/api';
-	import { DatabaseService } from '$lib/api';
+	import { DatabaseService, model_BackupType } from '$lib/api';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
 	import { Loader2 } from '@lucide/svelte';
-	import { createEventDispatcher } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-	export let open = false;
-	export let database: model_Database | null = null;
+	let { 
+		open = $bindable(false), 
+		database = null, 
+		onsaved 
+	}: { 
+		open: boolean, 
+		database: model_Database | null, 
+		onsaved?: () => void 
+	} = $props();
 
-	const dispatch = createEventDispatcher();
-
-	let loading = false;
-	let useConnectionString = false;
+	let loading = $state(false);
+	let useConnectionString = $state(false);
 
 	// Form fields
-	let name = '';
-	let type = '';
-	let host = '';
-	let port = '';
-	let username = '';
-	let password = '';
-	let dbName = '';
-	let connectionUri = '';
-	let cronExpression = '';
-	let webhookUrl = '';
-	let isActive = true;
+	let name = $state('');
+	let type = $state('');
+	let host = $state('');
+	let port = $state('');
+	let username = $state('');
+	let password = $state('');
+	let dbName = $state('');
+	let connectionUri = $state('');
+	let cronExpression = $state('');
+	let webhookUrl = $state('');
+	let isActive = $state(true);
 
 	const dbTypes = [
-		{ value: 'postgre', label: 'PostgreSQL' },
-		{ value: 'mysql', label: 'MySQL' },
-		{ value: 'mongodb', label: 'MongoDB' },
-		{ value: 'redis', label: 'Redis' }
+		{ value: model_BackupType.Postgres, label: 'PostgreSQL' },
+		{ value: model_BackupType.MySQL, label: 'MySQL' },
+		{ value: model_BackupType.Mongo, label: 'MongoDB' },
+		{ value: model_BackupType.Redis, label: 'Redis' }
 	];
 
 	// Initialize form when database changes or dialog opens
-	$: if (open && database) {
-		name = database.name || '';
-		type = database.type || '';
-		host = database.host || '';
-		port = database.port || '';
-		username = database.username || '';
-		password = database.password || '';
-		dbName = database.database || '';
-		connectionUri = database.connectionUri || '';
-		cronExpression = database.cronExpression || '';
-		webhookUrl = database.webhookUrl || '';
-		isActive = database.isActive !== undefined ? database.isActive : true;
-		useConnectionString = !!connectionUri;
-	} else if (open && !database) {
-		// Reset form for new database
-		resetForm();
-	}
+	$effect(() => {
+		if (open) {
+			if (database) {
+				name = database.name || '';
+				type = database.type || '';
+				host = database.host || '';
+				port = database.port || '';
+				username = database.username || '';
+				password = database.password || '';
+				dbName = database.database || '';
+				connectionUri = database.connectionUri || '';
+				cronExpression = database.cronExpression || '';
+				webhookUrl = database.webhookUrl || '';
+				isActive = database.isActive !== undefined ? database.isActive : true;
+				useConnectionString = !!connectionUri;
+			} else {
+				resetForm();
+			}
+		}
+	});
 
 	function resetForm() {
 		name = '';
@@ -117,7 +124,7 @@
 			}
 
 			open = false;
-			dispatch('saved');
+			onsaved?.();
 		} catch (error: any) {
 			console.error('Failed to save database:', error);
 			toast.error(error.message || 'Failed to save database');

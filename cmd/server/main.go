@@ -11,7 +11,6 @@ import (
 
 	_ "db-backup/docs" // Import generated docs
 	"db-backup/internal/api"
-	"db-backup/internal/cron"
 	"db-backup/internal/database"
 	"db-backup/internal/scheduler"
 	"db-backup/internal/worker"
@@ -64,7 +63,8 @@ func main() {
 	}
 
 	// Start cleanup cron
-	cron.StartCleanupCron()
+	// Disabled, since we have capabilities to delete backups
+	// cron.StartCleanupCron()
 
 	router := api.NewRouter()
 
