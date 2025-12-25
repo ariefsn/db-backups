@@ -5,20 +5,22 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
-	import * as Select from '$lib/components/ui/select';
+	import { parseConnectionString } from '$lib/db-utils';
 	import { Plus, RefreshCw } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
+	import FormField from '../molecules/FormField.svelte';
+	import SegmentedToggle from '../molecules/SegmentedToggle.svelte';
 
-	let open = $state(false);
+	let { open = $bindable(false) }: { open?: boolean } = $props();
+
 	let loading = $state(false);
 	let type = $state<model_BackupType>(model_BackupType.Postgres);
 	let useConnectionString = $state(true);
 
 	// New state for saved database selection
 	let databases = $state<model_Database[]>([]);
-	let sourceMethod = $state('saved'); // 'saved' | 'manual'
+	let sourceMethod = $state<'saved' | 'manual'>('saved'); 
 	let selectedDatabaseId = $state('');
 
 	// Form state
@@ -51,6 +53,22 @@
 			}
 		} catch (e) {
 			console.error('Failed to load databases:', e);
+		}
+	});
+
+	// Handle connection URI parsing
+	$effect(() => {
+		if (sourceMethod === 'manual' && useConnectionString && connectionUri) {
+			const parsed = parseConnectionString(connectionUri);
+			if (parsed) {
+        // parsed.type is not used
+				// type = parsed.type as model_BackupType;
+				host = parsed.host;
+				port = parsed.port;
+				username = parsed.username;
+				password = parsed.password;
+				database = parsed.database;
+			}
 		}
 	});
 
@@ -105,20 +123,12 @@
 	}
 
 	function startPolling(backupId: string) {
-		// Clear any existing interval
-		if (pollingInterval) {
-			clearInterval(pollingInterval);
-		}
+		if (pollingInterval) clearInterval(pollingInterval);
 
-		// Poll every 5 seconds
 		pollingInterval = setInterval(async () => {
 			try {
 				const backup = await BackupService.getBackupById(backupId);
-
-				// Update the backup list
 				invalidate('app:backups');
-
-				// Stop polling if backup reached final state
 				if (backup.status === 'completed' || backup.status === 'failed') {
 					if (pollingInterval) {
 						clearInterval(pollingInterval);
@@ -127,7 +137,6 @@
 				}
 			} catch (error) {
 				console.error('Failed to poll backup status:', error);
-				// Stop polling on error
 				if (pollingInterval) {
 					clearInterval(pollingInterval);
 					pollingInterval = null;
@@ -151,12 +160,9 @@
 		}
 	}
 
-	// Cleanup on component destroy
 	$effect(() => {
 		return () => {
-			if (pollingInterval) {
-				clearInterval(pollingInterval);
-			}
+			if (pollingInterval) clearInterval(pollingInterval);
 		};
 	});
 </script>
@@ -180,153 +186,75 @@
 
 		<form onsubmit={handleSubmit} class="grid gap-4 py-4">
 			{#if databases.length > 0}
-				<!-- Connection Source Toggle -->
-				<div class="flex items-center space-x-2">
-					<Label>Connection Source</Label>
-					<div class="flex items-center space-x-2 rounded-md border p-1 bg-muted/20">
-						<Label
-							class="cursor-pointer rounded-sm px-2 py-1 text-sm {sourceMethod === 'saved'
-								? 'bg-primary text-primary-foreground shadow-sm'
-								: 'text-muted-foreground hover:bg-muted/50'}"
-						>
-							<input
-								type="radio"
-								name="sourceMethod"
-								class="hidden"
-								bind:group={sourceMethod}
-								value="saved"
-							/>
-							Saved Database
-						</Label>
-						<Label
-							class="cursor-pointer rounded-sm px-2 py-1 text-sm {sourceMethod === 'manual'
-								? 'bg-primary text-primary-foreground shadow-sm'
-								: 'text-muted-foreground hover:bg-muted/50'}"
-						>
-							<input
-								type="radio"
-								name="sourceMethod"
-								class="hidden"
-								bind:group={sourceMethod}
-								value="manual"
-							/>
-							New Connection
-						</Label>
-					</div>
-				</div>
+				<SegmentedToggle 
+					label="Connection Source"
+					bind:value={sourceMethod}
+					options={[
+						{ value: 'saved', label: 'Saved Database' },
+						{ value: 'manual', label: 'New Connection' }
+					]}
+				/>
 			{/if}
 
 			{#if sourceMethod === 'saved'}
-				<div class="space-y-2">
-					<Label>Select Database</Label>
-					<Select.Root type="single" bind:value={selectedDatabaseId}>
-						<Select.Trigger>
-							{databases.find((d) => d.id === selectedDatabaseId)?.name || 'Select a database'}
-						</Select.Trigger>
-						<Select.Content>
-							{#each databases as db}
-								<Select.Item value={db.id || ''}>{db.name} ({db.type})</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
-				</div>
+				<FormField label="Select Database">
+					<select 
+						bind:value={selectedDatabaseId} 
+						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						{#each databases as db}
+							<option value={db.id || ''}>{db.name} ({db.type})</option>
+						{/each}
+					</select>
+				</FormField>
 			{:else}
-				<!-- Type Selection -->
-				<div class="space-y-2">
-					<Label>Database Type</Label>
-					<Select.Root type="single" bind:value={type}>
-						<Select.Trigger>
-							{types.find((t) => t.value === type)?.label}
-						</Select.Trigger>
-						<Select.Content>
-							{#each types as t}
-								<Select.Item value={t.value}>{t.label}</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
-				</div>
+				<FormField label="Database Type">
+					<select 
+						bind:value={type} 
+						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						{#each types as t}
+							<option value={t.value}>{t.label}</option>
+						{/each}
+					</select>
+				</FormField>
 
-				<!-- Connection Method Toggle -->
-				<div class="flex items-center space-x-2">
-					<Label>Connection Method</Label>
-					<div class="flex items-center space-x-2 rounded-md border p-1 bg-muted/20">
-						<Label
-							class="cursor-pointer rounded-sm px-2 py-1 text-sm {useConnectionString
-								? 'bg-primary text-primary-foreground shadow-sm'
-								: 'text-muted-foreground hover:bg-muted/50'}"
-						>
-							<input
-								type="radio"
-								name="connectionMethod"
-								class="hidden"
-								bind:group={useConnectionString}
-								value={true}
-							/>
-							URI
-						</Label>
-						<Label
-							class="cursor-pointer rounded-sm px-2 py-1 text-sm {!useConnectionString
-								? 'bg-primary text-primary-foreground shadow-sm'
-								: 'text-muted-foreground hover:bg-muted/50'}"
-						>
-							<input
-								type="radio"
-								name="connectionMethod"
-								class="hidden"
-								bind:group={useConnectionString}
-								value={false}
-							/>
-							Manual
-						</Label>
-					</div>
-				</div>
+				<SegmentedToggle 
+					label="Connection Method"
+					bind:value={useConnectionString}
+					options={[
+						{ value: true, label: 'URI' },
+						{ value: false, label: 'Manual' }
+					]}
+				/>
 
 				{#if useConnectionString}
-					<!-- Connection URI Input -->
-					<div class="space-y-2">
-						<Label>Connection URI</Label>
-						<Input
-							bind:value={connectionUri}
-							placeholder="postgresql://user:password@localhost:5432/dbname"
-							required
-						/>
-						<p class="text-xs text-muted-foreground">Example: postgresql://user:pass@host:port/db</p>
-					</div>
+					<FormField label="Connection URI" description="Example: postgresql://user:pass@host:port/db">
+						<Input bind:value={connectionUri} placeholder="postgresql://user:password@localhost:5432/dbname" required />
+					</FormField>
 				{:else}
-					<!-- Manual Connection Fields -->
 					<div class="grid grid-cols-2 gap-4">
-						<div class="space-y-2">
-							<Label>Database Name</Label>
+						<FormField label="Database Name">
 							<Input bind:value={database} placeholder="mydb" required />
-						</div>
-						<div class="space-y-2">
-							<Label>Host</Label>
+						</FormField>
+						<FormField label="Host">
 							<Input bind:value={host} placeholder="localhost" required />
-						</div>
-					</div>
-
-					<div class="grid grid-cols-2 gap-4">
-						<div class="space-y-2">
-							<Label>Port</Label>
+						</FormField>
+						<FormField label="Port">
 							<Input bind:value={port} placeholder="5432" required />
-						</div>
-						<div class="space-y-2">
-							<Label>Username</Label>
+						</FormField>
+						<FormField label="Username">
 							<Input bind:value={username} placeholder="user" />
-						</div>
+						</FormField>
 					</div>
-
-					<div class="space-y-2">
-						<Label>Password</Label>
+					<FormField label="Password">
 						<Input type="password" bind:value={password} placeholder="password" />
-					</div>
+					</FormField>
 				{/if}
 
-				<!-- Webhook URL (Optional) -->
-				<div class="space-y-2">
-					<Label>Webhook URL (Optional)</Label>
+				<FormField label="Webhook URL (Optional)">
 					<Input bind:value={webhookUrl} placeholder="https://api.example.com/webhook" />
-				</div>
+				</FormField>
 			{/if}
 
 			<Dialog.Footer>

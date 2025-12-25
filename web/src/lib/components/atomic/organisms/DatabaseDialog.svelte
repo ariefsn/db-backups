@@ -4,10 +4,11 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
-	import * as Select from '$lib/components/ui/select';
+	import { parseConnectionString } from '$lib/db-utils';
 	import { Loader2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
+	import FormField from '../molecules/FormField.svelte';
+	import SegmentedToggle from '../molecules/SegmentedToggle.svelte';
 
 	let { 
 		open = $bindable(false), 
@@ -24,7 +25,7 @@
 
 	// Form fields
 	let name = $state('');
-	let type = $state('');
+	let type = $state<model_BackupType | string>('');
 	let host = $state('');
 	let port = $state('');
 	let username = $state('');
@@ -60,6 +61,22 @@
 				useConnectionString = !!connectionUri;
 			} else {
 				resetForm();
+			}
+		}
+	});
+
+	// Handle connection URI parsing
+	$effect(() => {
+		if (useConnectionString && connectionUri) {
+			const parsed = parseConnectionString(connectionUri);
+			if (parsed) {
+        // parsed.type is not used
+				// type = parsed.type;
+				host = parsed.host;
+				port = parsed.port;
+				username = parsed.username;
+				password = parsed.password;
+				dbName = parsed.database;
 			}
 		}
 	});
@@ -104,11 +121,11 @@
 			const payload = {
 				name,
 				type: type as any,
-				host: useConnectionString ? '' : host,
-				port: useConnectionString ? '' : port,
-				username: useConnectionString ? '' : username,
-				password: useConnectionString ? '' : password,
-				database: useConnectionString ? '' : dbName,
+				host,
+				port,
+				username,
+				password,
+				database: dbName,
 				connectionUri: useConnectionString ? connectionUri : '',
 				cronExpression,
 				webhookUrl,
@@ -145,106 +162,69 @@
 
 		<div class="grid gap-4 py-4">
 			<div class="grid grid-cols-2 gap-4">
-				<div class="space-y-2">
-					<Label>Name</Label>
+				<FormField label="Name">
 					<Input bind:value={name} placeholder="Production DB" />
-				</div>
-				<div class="space-y-2">
-					<Label>Type</Label>
-					<Select.Root type="single" bind:value={type}>
-						<Select.Trigger>
-							{dbTypes.find(t => t.value === type)?.label || 'Select Database Type'}
-						</Select.Trigger>
-						<Select.Content>
-							{#each dbTypes as t}
-								<Select.Item value={t.value}>{t.label}</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
-				</div>
+				</FormField>
+				<FormField label="Type">
+					<select 
+						bind:value={type} 
+						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						<option value="" disabled>Select Type</option>
+						{#each dbTypes as t}
+							<option value={t.value}>{t.label}</option>
+						{/each}
+					</select>
+				</FormField>
 			</div>
 
-			<div class="flex items-center space-x-2">
-				<Label>Connection Method</Label>
-				<div class="flex items-center space-x-2 rounded-md border p-1">
-					<Label
-						class="cursor-pointer rounded-sm px-2 py-1 text-sm {useConnectionString
-							? 'bg-primary text-primary-foreground'
-							: 'text-muted-foreground'}"
-					>
-						<input
-							type="radio"
-							name="connMethod"
-							class="hidden"
-							bind:group={useConnectionString}
-							value={true}
-						/>
-						URI
-					</Label>
-					<Label
-						class="cursor-pointer rounded-sm px-2 py-1 text-sm {!useConnectionString
-							? 'bg-primary text-primary-foreground'
-							: 'text-muted-foreground'}"
-					>
-						<input
-							type="radio"
-							name="connMethod"
-							class="hidden"
-							bind:group={useConnectionString}
-							value={false}
-						/>
-						Manual
-					</Label>
-				</div>
-			</div>
+			<SegmentedToggle 
+				label="Connection Method"
+				bind:value={useConnectionString}
+				options={[
+					{ value: true, label: 'URI' },
+					{ value: false, label: 'Manual' }
+				]}
+			/>
 
 			{#if useConnectionString}
-				<div class="space-y-2">
-					<Label>Connection URI</Label>
+				<FormField label="Connection URI" description="Enter the full connection string.">
 					<Input bind:value={connectionUri} placeholder="postgresql://user:pass@host:port/db" />
-					<p class="text-xs text-muted-foreground">Enter the full connection string.</p>
-				</div>
+				</FormField>
 			{:else}
 				<div class="grid grid-cols-2 gap-4">
-					<div class="space-y-2">
-						<Label>Host</Label>
+					<FormField label="Host">
 						<Input bind:value={host} placeholder="localhost" />
-					</div>
-					<div class="space-y-2">
-						<Label>Port</Label>
+					</FormField>
+					<FormField label="Port">
 						<Input bind:value={port} placeholder="5432" />
-					</div>
-					<div class="space-y-2">
-						<Label>Username</Label>
+					</FormField>
+					<FormField label="Username">
 						<Input bind:value={username} placeholder="postgres" />
-					</div>
-					<div class="space-y-2">
-						<Label>Password</Label>
+					</FormField>
+					<FormField label="Password">
 						<Input type="password" bind:value={password} placeholder="••••••••" />
-					</div>
-					<div class="space-y-2">
-						<Label>Database Name</Label>
+					</FormField>
+					<FormField label="Database Name">
 						<Input bind:value={dbName} placeholder="postgres" />
-					</div>
-	
+					</FormField>
 				</div>
 			{/if}
 
 			<div class="grid grid-cols-2 gap-4">
-				<div class="space-y-2">
-					<Label>Cron Schedule</Label>
+				<FormField label="Cron Schedule" description="Standard cron expression (e.g., 0 0 * * *)">
 					<Input bind:value={cronExpression} placeholder="0 0 * * *" />
-					<p class="text-xs text-muted-foreground">Standard cron expression (e.g., 0 0 * * *)</p>
-				</div>
-				<div class="space-y-2">
-					<Label>Webhook URL</Label>
+				</FormField>
+				<FormField label="Webhook URL">
 					<Input bind:value={webhookUrl} placeholder="https://api.example.com/webhook" />
-				</div>
+				</FormField>
 			</div>
 
 			<div class="flex items-center space-x-2">
 				<input type="checkbox" id="isActive" bind:checked={isActive} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-				<Label for="isActive">Active (Enable automated backups)</Label>
+				<label for="isActive" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+					Active (Enable automated backups)
+				</label>
 			</div>
 		</div>
 
