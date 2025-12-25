@@ -180,6 +180,7 @@ Retrieve a single backup by ID.
   "host": "postgres-host",
   "database": "mydb"
 }
+```
 
 ### Delete Backup
 
