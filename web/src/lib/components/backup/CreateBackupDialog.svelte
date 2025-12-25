@@ -177,7 +177,7 @@
 						onchange={() => (useConnectionString = false)}
 						class="mr-2"
 					/>
-					Traditional
+					Manual
 				</Label>
 			</div>
 
@@ -193,7 +193,7 @@
 					<p class="text-xs text-muted-foreground">Example: postgresql://user:pass@host:port/db</p>
 				</div>
 			{:else}
-				<!-- Traditional Connection Fields -->
+				<!-- Manual Connection Fields -->
 				<div class="grid grid-cols-2 gap-4">
 					<div class="space-y-2">
 						<Label>Database Name</Label>

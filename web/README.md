@@ -5,7 +5,7 @@ A modern, user-friendly web interface for managing your database backups. Built 
 ## Features
 
 - **Multi-Database Support**: Create backups for PostgreSQL, MySQL, MongoDB, and Redis.
-- **Flexible Connection Methods**: Support for both standard connection strings and traditional host/user/pass forms.
+- **Flexible Connection Methods**: Support for both standard connection strings and manual host/user/pass forms.
 - **Dashboard**: Monitor all your backups in one place with real-time status updates.
 - **Backup Management**:
   - Create new backups on-demand.

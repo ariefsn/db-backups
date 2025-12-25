@@ -2,7 +2,7 @@
 
 A generic database backup application capable of backing up PostgreSQL, MySQL, MongoDB, and Redis databases. Features background processing, webhook notifications, automatic daily cleanup, **cloud storage integration (Cloudflare R2)**, and **backup management with MongoDB**.
 
-[GitHub](https://github.com/ariefsn/db-backup) | [Docker Hub](https://hub.docker.com/r/ariefsn/db-backup)
+[GitHub](https://github.com/ariefsn/db-backups) | [Docker Hub](https://hub.docker.com/r/ariefsn/db-backup)
 
 ## Features
 

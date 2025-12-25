@@ -1,7 +1,11 @@
+name: db-backup
+
 services:
   backend:
     build: .
     env_file: .env
+    container_name: dbb-backend
+    mem_limit: 512mb
     ports:
       - "8080:8080"
     volumes:
@@ -13,6 +17,8 @@ services:
       context: ./web
       args:
         PORT: 3000
+    container_name: dbb-web
+    mem_limit: 100mb
     ports:
       - "3000:3000"
     environment:

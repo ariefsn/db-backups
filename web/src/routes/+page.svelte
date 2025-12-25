@@ -19,7 +19,7 @@
 			<span>DbBackup</span>
 		</div>
 		<nav>
-			<Button variant="ghost" href="https://github.com/ariefsn/db-backup" target="_blank"
+			<Button variant="ghost" href="https://github.com/ariefsn/db-backups" target="_blank"
 				>GitHub</Button
 			>
 			<Button href="/dashboard">Dashboard</Button>
@@ -52,7 +52,9 @@
 						Get Started
 						<ArrowRight class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
 					</Button>
-					<Button size="lg" variant="outline" href="https://github.com">Documentation</Button>
+					<Button size="lg" variant="outline" href="https://github.com/ariefsn/db-backups"
+						>Documentation</Button
+					>
 				</div>
 			</div>
 
@@ -163,10 +165,10 @@
 	<footer class="border-t py-6 md:py-8">
 		<div class="container mx-auto flex flex-col items-center justify-between gap-4 md:flex-row">
 			<p class="text-sm text-muted-foreground">© 2025 DbBackup Manager. All rights reserved.</p>
-			<div class="flex gap-4">
+			<!-- <div class="flex gap-4">
 				<a href="/" class="text-sm font-medium hover:underline">Privacy</a>
 				<a href="/" class="text-sm font-medium hover:underline">Terms</a>
-			</div>
+			</div> -->
 		</div>
 	</footer>
 </div>
