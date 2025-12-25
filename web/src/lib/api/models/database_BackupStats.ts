@@ -3,8 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type database_BackupStats = {
-    byStatus?: Record<string, number>;
-    byType?: Record<string, number>;
-    total?: number;
+	byStatus?: Record<string, number>;
+	byType?: Record<string, number>;
+	total?: number;
 };
-

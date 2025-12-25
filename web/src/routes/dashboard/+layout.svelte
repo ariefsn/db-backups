@@ -2,12 +2,12 @@
 	import { page } from '$app/stores';
 	import { Button } from '$lib/components/ui/button';
 	import { BarChart3, Database, LogOut, Menu } from '@lucide/svelte';
-	
+
 	let { children } = $props();
 
 	const sidebarItems = [
 		{ href: '/dashboard', icon: Database, label: 'Backups' },
-		{ href: '/dashboard/stats', icon: BarChart3, label: 'Reports' },
+		{ href: '/dashboard/stats', icon: BarChart3, label: 'Reports' }
 	];
 
 	function isActive(href: string) {
@@ -28,7 +28,11 @@
 			{#each sidebarItems as item}
 				<a
 					href={item.href}
-					class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted {isActive(item.href) ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground'}"
+					class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted {isActive(
+						item.href
+					)
+						? 'bg-secondary text-secondary-foreground'
+						: 'text-muted-foreground'}"
 				>
 					<item.icon class="h-4 w-4" />
 					{item.label}

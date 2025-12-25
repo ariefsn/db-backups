@@ -12,23 +12,24 @@
 
 	let dateRange = $state<DateRange | undefined>(undefined);
 
-		    // Initialize date range from URL
-    const startStr = page.url.searchParams.get('startDate');
-    const endStr = page.url.searchParams.get('endDate');
-    if (startStr) { // startStr is ISO string
-         // We need to parse ISO string to CalendarDate for the picker.
-         // However, DateRangePicker expects CalendarDate.
-         // Let's simplify and rely on the string parsing in DateRangePicker if passing strings, 
-         // BUT DateRangePicker accepts value: DateRange.
-         // Let's manually reconstruct if needed or cleaner:
-         const s = new Date(startStr);
-         const e = endStr ? new Date(endStr) : undefined;
-         
-         dateRange = {
-            start: new CalendarDate(s.getFullYear(), s.getMonth() + 1, s.getDate()),
-            end: e ? new CalendarDate(e.getFullYear(), e.getMonth() + 1, e.getDate()) : undefined
-         }
-    }
+	// Initialize date range from URL
+	const startStr = page.url.searchParams.get('startDate');
+	const endStr = page.url.searchParams.get('endDate');
+	if (startStr) {
+		// startStr is ISO string
+		// We need to parse ISO string to CalendarDate for the picker.
+		// However, DateRangePicker expects CalendarDate.
+		// Let's simplify and rely on the string parsing in DateRangePicker if passing strings,
+		// BUT DateRangePicker accepts value: DateRange.
+		// Let's manually reconstruct if needed or cleaner:
+		const s = new Date(startStr);
+		const e = endStr ? new Date(endStr) : undefined;
+
+		dateRange = {
+			start: new CalendarDate(s.getFullYear(), s.getMonth() + 1, s.getDate()),
+			end: e ? new CalendarDate(e.getFullYear(), e.getMonth() + 1, e.getDate()) : undefined
+		};
+	}
 
 	function applyFilters() {
 		const params = new URLSearchParams();
@@ -58,7 +59,7 @@
 			<h1 class="text-3xl font-bold tracking-tight">Reports</h1>
 			<p class="text-muted-foreground">Detailed statistics about your backups.</p>
 		</div>
-		<div class="flex gap-2 items-center">
+		<div class="flex items-center gap-2">
 			<DateRangePicker bind:value={dateRange} className="w-full" />
 
 			<Button onclick={applyFilters}>Apply</Button>
@@ -100,9 +101,7 @@
 			</Card.Header>
 			<Card.Content>
 				<div class="text-2xl font-bold">{data.stats.byStatus?.failed || 0}</div>
-				<p class="text-xs text-muted-foreground">
-					Needs attention
-				</p>
+				<p class="text-xs text-muted-foreground">Needs attention</p>
 			</Card.Content>
 		</Card.Root>
 	</div>
@@ -119,10 +118,15 @@
 					<div class="space-y-1">
 						<div class="flex items-center justify-between text-sm">
 							<span class="font-medium capitalize">{type}</span>
-							<span class="text-muted-foreground">{count} ({getPercentage(count, data.stats.total)}%)</span>
+							<span class="text-muted-foreground"
+								>{count} ({getPercentage(count, data.stats.total)}%)</span
+							>
 						</div>
 						<div class="h-2 w-full rounded-full bg-secondary">
-							<div class="h-2 rounded-full bg-primary transition-all" style="width: {getPercentage(count, data.stats.total)}%"></div>
+							<div
+								class="h-2 rounded-full bg-primary transition-all"
+								style="width: {getPercentage(count, data.stats.total)}%"
+							></div>
 						</div>
 					</div>
 				{:else}
@@ -141,11 +145,19 @@
 					<div class="space-y-1">
 						<div class="flex items-center justify-between text-sm">
 							<span class="font-medium capitalize">{status}</span>
-							<span class="text-muted-foreground">{count} ({getPercentage(count, data.stats.total)}%)</span>
+							<span class="text-muted-foreground"
+								>{count} ({getPercentage(count, data.stats.total)}%)</span
+							>
 						</div>
 						<div class="h-2 w-full rounded-full bg-secondary">
-							<div 
-								class="h-2 rounded-full transition-all {status === 'completed' ? 'bg-green-500' : status === 'failed' ? 'bg-red-500' : status === 'generating' ? 'bg-blue-500' : 'bg-gray-500'}" 
+							<div
+								class="h-2 rounded-full transition-all {status === 'completed'
+									? 'bg-green-500'
+									: status === 'failed'
+										? 'bg-red-500'
+										: status === 'generating'
+											? 'bg-blue-500'
+											: 'bg-gray-500'}"
 								style="width: {getPercentage(count, data.stats.total)}%"
 							></div>
 						</div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { OpenAPI } from '$lib/api';
-	import { Toaster } from "$lib/components/ui/sonner";
+	import { Toaster } from '$lib/components/ui/sonner';
 	import '../app.css';
 
 	OpenAPI.BASE = '/api';

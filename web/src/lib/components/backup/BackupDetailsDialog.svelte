@@ -5,12 +5,19 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Separator } from '$lib/components/ui/separator';
-	import { AlertCircle, CheckCircle2, Clock, Database, RefreshCw, ShieldAlert } from '@lucide/svelte';
+	import {
+		AlertCircle,
+		CheckCircle2,
+		Clock,
+		Database,
+		RefreshCw,
+		ShieldAlert
+	} from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
-	let { open = $bindable(false), backupId } = $props<{ 
-		open: boolean; 
-		backupId: string | null 
+	let { open = $bindable(false), backupId } = $props<{
+		open: boolean;
+		backupId: string | null;
 	}>();
 
 	let backup = $state<model_BackupMetadata | null>(null);
@@ -30,10 +37,10 @@
 
 	async function fetchBackupDetails() {
 		if (!backupId) return;
-		
+
 		loading = true;
 		error = null;
-		
+
 		try {
 			backup = await BackupService.getBackupById(backupId);
 		} catch (err) {
@@ -63,17 +70,17 @@
 	<Dialog.Content class="sm:max-w-[600px]">
 		{#if loading}
 			<div class="flex items-center justify-center py-12">
-				<div class="text-center space-y-4">
-					<RefreshCw class="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+				<div class="space-y-4 text-center">
+					<RefreshCw class="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
 					<p class="text-sm text-muted-foreground">Loading backup details...</p>
 				</div>
 			</div>
 		{:else if error}
 			<div class="flex items-center justify-center py-12">
-				<div class="text-center space-y-4">
-					<AlertCircle class="h-8 w-8 mx-auto text-destructive" />
+				<div class="space-y-4 text-center">
+					<AlertCircle class="mx-auto h-8 w-8 text-destructive" />
 					<p class="text-sm text-destructive">{error}</p>
-					<Button variant="outline" onclick={() => open = false}>Close</Button>
+					<Button variant="outline" onclick={() => (open = false)}>Close</Button>
 				</div>
 			</div>
 		{:else if backup}
@@ -88,16 +95,21 @@
 			</Dialog.Header>
 
 			<div class="grid gap-6 py-4">
-				<div class="flex items-center justify-between rounded-lg border p-4 bg-muted/40">
+				<div class="flex items-center justify-between rounded-lg border bg-muted/40 p-4">
 					<div class="space-y-1">
 						<p class="text-sm font-medium text-muted-foreground">Status</p>
 						<div class="flex items-center">
 							{#if backup.status === 'completed'}
-								<Badge class="bg-green-500/15 text-green-700 dark:bg-green-500/10 dark:text-green-400">
+								<Badge
+									class="bg-green-500/15 text-green-700 dark:bg-green-500/10 dark:text-green-400"
+								>
 									<CheckCircle2 class="mr-1 h-3 w-3" /> Completed
 								</Badge>
 							{:else if backup.status === 'failed'}
-								<Badge variant="destructive" class="bg-red-500/15 text-red-700 dark:bg-red-500/10 dark:text-red-400">
+								<Badge
+									variant="destructive"
+									class="bg-red-500/15 text-red-700 dark:bg-red-500/10 dark:text-red-400"
+								>
 									<ShieldAlert class="mr-1 h-3 w-3" /> Failed
 								</Badge>
 							{:else if backup.status === 'generating'}
@@ -118,22 +130,22 @@
 				</div>
 
 				<div class="space-y-4">
-					<h4 class="font-medium leading-none">Database Information</h4>
+					<h4 class="leading-none font-medium">Database Information</h4>
 					<div class="grid grid-cols-2 gap-4 text-sm">
 						<div>
-							<p class="text-muted-foreground mb-1">Type</p>
+							<p class="mb-1 text-muted-foreground">Type</p>
 							<p class="font-medium uppercase">{backup.type}</p>
 						</div>
 						<div>
-							<p class="text-muted-foreground mb-1">Database Name</p>
+							<p class="mb-1 text-muted-foreground">Database Name</p>
 							<p class="font-medium">{backup.database}</p>
 						</div>
 						<div>
-							<p class="text-muted-foreground mb-1">Host</p>
+							<p class="mb-1 text-muted-foreground">Host</p>
 							<p class="font-medium">{backup.host || '-'}</p>
 						</div>
 						<div>
-							<p class="text-muted-foreground mb-1">Created At</p>
+							<p class="mb-1 text-muted-foreground">Created At</p>
 							<p class="font-medium">{formatDate(backup.createdAt)}</p>
 						</div>
 					</div>
@@ -142,17 +154,17 @@
 				<Separator />
 
 				<div class="space-y-4">
-					<h4 class="font-medium leading-none">Storage Information</h4>
+					<h4 class="leading-none font-medium">Storage Information</h4>
 					<div class="grid gap-2 text-sm">
 						<div>
-							<p class="text-muted-foreground mb-1">Object Key</p>
+							<p class="mb-1 text-muted-foreground">Object Key</p>
 							<code class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
 								{backup.objectKey}
 							</code>
 						</div>
 						{#if backup.filePath}
 							<div>
-								<p class="text-muted-foreground mb-1">Local Path</p>
+								<p class="mb-1 text-muted-foreground">Local Path</p>
 								<code class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
 									{backup.filePath}
 								</code>
@@ -160,21 +172,21 @@
 						{/if}
 					</div>
 				</div>
-                
-                {#if backup.error}
-                    <Separator />
-                    <div class="rounded-md bg-destructive/10 p-4">
-                        <div class="flex items-center gap-2 text-destructive mb-2">
-                            <ShieldAlert class="h-4 w-4" />
-                            <h4 class="font-medium">Error Message</h4>
-                        </div>
-                        <p class="text-sm text-destructive/90 font-mono whitespace-pre-wrap">{backup.error}</p>
-                    </div>
-                {/if}
+
+				{#if backup.error}
+					<Separator />
+					<div class="rounded-md bg-destructive/10 p-4">
+						<div class="mb-2 flex items-center gap-2 text-destructive">
+							<ShieldAlert class="h-4 w-4" />
+							<h4 class="font-medium">Error Message</h4>
+						</div>
+						<p class="font-mono text-sm whitespace-pre-wrap text-destructive/90">{backup.error}</p>
+					</div>
+				{/if}
 			</div>
 
 			<Dialog.Footer>
-				<Button variant="outline" onclick={() => open = false}>Close</Button>
+				<Button variant="outline" onclick={() => (open = false)}>Close</Button>
 			</Dialog.Footer>
 		{/if}
 	</Dialog.Content>

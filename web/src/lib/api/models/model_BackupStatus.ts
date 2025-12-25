@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export enum model_BackupStatus {
-    StatusPending = 'pending',
-    StatusGenerating = 'generating',
-    StatusCompleted = 'completed',
-    StatusFailed = 'failed',
+	StatusPending = 'pending',
+	StatusGenerating = 'generating',
+	StatusCompleted = 'completed',
+	StatusFailed = 'failed'
 }

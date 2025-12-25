@@ -13,7 +13,7 @@
 	let loading = $state(false);
 	let type = $state<model_BackupType>(model_BackupType.Postgres);
 	let useConnectionString = $state(true);
-	
+
 	// Form state
 	let connectionString = $state('');
 	let host = $state('');
@@ -22,7 +22,7 @@
 	let password = $state('');
 	let database = $state('');
 	let webhookUrl = $state('');
-	
+
 	// Polling state
 	let pollingInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -42,7 +42,7 @@
 				type,
 				webhookUrl: webhookUrl || undefined
 			};
-			
+
 			if (useConnectionString) {
 				payload.connectionUri = connectionString;
 			} else {
@@ -52,14 +52,14 @@
 				payload.password = password;
 				payload.database = database;
 			}
-			
+
 			const response = await BackupService.postBackup(payload);
 
 			toast.success('Backup triggered successfully');
 			open = false;
 			resetForm();
 			invalidate('app:backups');
-			
+
 			// Start polling if we got a backup ID
 			if (response.id) {
 				startPolling(response.id);
@@ -71,21 +71,21 @@
 			loading = false;
 		}
 	}
-	
+
 	function startPolling(backupId: string) {
 		// Clear any existing interval
 		if (pollingInterval) {
 			clearInterval(pollingInterval);
 		}
-		
+
 		// Poll every 5 seconds
 		pollingInterval = setInterval(async () => {
 			try {
 				const backup = await BackupService.getBackupById(backupId);
-				
+
 				// Update the backup list
 				invalidate('app:backups');
-				
+
 				// Stop polling if backup reached final state
 				if (backup.status === 'completed' || backup.status === 'failed') {
 					if (pollingInterval) {
@@ -115,7 +115,7 @@
 		type = model_BackupType.Postgres;
 		useConnectionString = true;
 	}
-	
+
 	// Cleanup on component destroy
 	$effect(() => {
 		return () => {
@@ -147,7 +147,7 @@
 				<Label>Database Type</Label>
 				<Select.Root type="single" bind:value={type}>
 					<Select.Trigger>
-						{types.find(t => t.value === type)?.label}
+						{types.find((t) => t.value === type)?.label}
 					</Select.Trigger>
 					<Select.Content>
 						{#each types as t}
@@ -156,25 +156,25 @@
 					</Select.Content>
 				</Select.Root>
 			</div>
-			
+
 			<!-- Connection Method Toggle -->
-			<div class="flex items-center gap-4 rounded-lg border p-3 bg-muted/40">
+			<div class="flex items-center gap-4 rounded-lg border bg-muted/40 p-3">
 				<Label class="flex-1 cursor-pointer">
-					<input 
-						type="radio" 
-						name="connectionMethod" 
+					<input
+						type="radio"
+						name="connectionMethod"
 						checked={useConnectionString}
-						onchange={() => useConnectionString = true}
+						onchange={() => (useConnectionString = true)}
 						class="mr-2"
 					/>
 					Connection String
 				</Label>
 				<Label class="flex-1 cursor-pointer">
-					<input 
-						type="radio" 
-						name="connectionMethod" 
+					<input
+						type="radio"
+						name="connectionMethod"
 						checked={!useConnectionString}
-						onchange={() => useConnectionString = false}
+						onchange={() => (useConnectionString = false)}
 						class="mr-2"
 					/>
 					Traditional
@@ -185,14 +185,12 @@
 				<!-- Connection String Input -->
 				<div class="space-y-2">
 					<Label>Connection String</Label>
-					<Input 
-						bind:value={connectionString} 
-						placeholder="postgresql://user:password@localhost:5432/dbname" 
-						required 
+					<Input
+						bind:value={connectionString}
+						placeholder="postgresql://user:password@localhost:5432/dbname"
+						required
 					/>
-					<p class="text-xs text-muted-foreground">
-						Example: postgresql://user:pass@host:port/db
-					</p>
+					<p class="text-xs text-muted-foreground">Example: postgresql://user:pass@host:port/db</p>
 				</div>
 			{:else}
 				<!-- Traditional Connection Fields -->

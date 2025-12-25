@@ -1,31 +1,56 @@
-# sv
+# Db Backup Web Interface
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A modern, user-friendly web interface for managing your database backups. Built with SvelteKit and Shadcn UI.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **Multi-Database Support**: Create backups for PostgreSQL, MySQL, MongoDB, and Redis.
+- **Flexible Connection Methods**: Support for both standard connection strings and traditional host/user/pass forms.
+- **Dashboard**: Monitor all your backups in one place with real-time status updates.
+- **Backup Management**:
+  - Create new backups on-demand.
+  - Download backup files directly (via presigned URLs).
+  - Delete old backups (removes from both metadata and object storage).
+- **Statistics**: View reports and statistics about your backup history.
+- **Object Storage Integration**: Seamlessly works with S3-compatible storage (Cloudflare R2, AWS S3, etc.).
 
-```sh
-# create a new project in the current directory
-npx sv create
+## Tech Stack
 
-# create a new project in my-app
-npx sv create my-app
+- **Framework**: [SvelteKit](https://kit.svelte.dev/)
+- **UI Components**: [Shadcn UI](https://www.shadcn-svelte.com/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Icons**: [Lucide Svelte](https://lucide.dev/guide/packages/lucide-svelte)
+- **API Client**: Generated from OpenAPI/Swagger definition.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18+)
+- Bun (optional, but recommended)
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+# or
+bun install
 ```
 
-## Developing
+### Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Start the development server:
 
-```sh
+```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# or
+bun run dev
 ```
 
-## Building
+The application will be available at `http://localhost:5173`.
+
+### Building
 
 To create a production version of your app:
 
@@ -35,16 +60,29 @@ npm run build
 
 You can preview the production build with `npm run preview`.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
-
 ## Docker Support
 
-You can also run the web application using Docker Compose from the root directory:
+You can run the web application using Docker Compose from the root directory:
 
 ```bash
 docker compose up -d
 ```
 
-You can preview the production build with `npm run preview`.
+## Authentication
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+**Important:** This application currently does not implement its own authentication mechanism. It is intended to be run in a secure environment.
+
+If you are exposing this application to the public internet or an untrusted network, it is highly recommended to use a reverse proxy with authentication support.
+
+For example, if you are using [Caddy](https://caddyserver.com/), you can easily add Basic Authentication to your Caddyfile:
+
+```caddyfile
+example.com {
+    reverse_proxy localhost:3000
+    basicauth {
+        # Username "admin", Password "password" (hashed)
+        # Use `caddy hash-password` to generate the hash
+        admin $2a$14$1...
+    }
+}
+```

@@ -35,35 +35,35 @@
 	let search = $state(page.url.searchParams.get('search') || '');
 	let status = $state(page.url.searchParams.get('statuses') || 'all');
 	let type = $state(page.url.searchParams.get('types') || 'all');
-	
-    // Date range filter
-    let dateRange = $state<DateRange | undefined>(undefined);
-    
-    // Initialize date range from URL
-    const startStr = page.url.searchParams.get('startDate');
-    const endStr = page.url.searchParams.get('endDate');
-    if (startStr) { // startStr is ISO string
-         // We need to parse ISO string to CalendarDate for the picker.
-         // However, DateRangePicker expects CalendarDate.
-         // Let's simplify and rely on the string parsing in DateRangePicker if passing strings, 
-         // BUT DateRangePicker accepts value: DateRange.
-         // Let's manually reconstruct if needed or cleaner:
-         const s = new Date(startStr);
-         const e = endStr ? new Date(endStr) : undefined;
-         
-         dateRange = {
-            start: new CalendarDate(s.getFullYear(), s.getMonth() + 1, s.getDate()),
-            end: e ? new CalendarDate(e.getFullYear(), e.getMonth() + 1, e.getDate()) : undefined
-         }
-    }
-    
-	
+
+	// Date range filter
+	let dateRange = $state<DateRange | undefined>(undefined);
+
+	// Initialize date range from URL
+	const startStr = page.url.searchParams.get('startDate');
+	const endStr = page.url.searchParams.get('endDate');
+	if (startStr) {
+		// startStr is ISO string
+		// We need to parse ISO string to CalendarDate for the picker.
+		// However, DateRangePicker expects CalendarDate.
+		// Let's simplify and rely on the string parsing in DateRangePicker if passing strings,
+		// BUT DateRangePicker accepts value: DateRange.
+		// Let's manually reconstruct if needed or cleaner:
+		const s = new Date(startStr);
+		const e = endStr ? new Date(endStr) : undefined;
+
+		dateRange = {
+			start: new CalendarDate(s.getFullYear(), s.getMonth() + 1, s.getDate()),
+			end: e ? new CalendarDate(e.getFullYear(), e.getMonth() + 1, e.getDate()) : undefined
+		};
+	}
+
 	let isDeleting = $state(false);
 	let deleteId = $state<string | null>(null);
-    
-    // Details Dialog
-    let showDetails = $state(false);
-    let selectedBackupId = $state<string | null>(null);
+
+	// Details Dialog
+	let showDetails = $state(false);
+	let selectedBackupId = $state<string | null>(null);
 
 	const statuses = [
 		{ value: 'all', label: 'All Statuses' },
@@ -86,14 +86,14 @@
 		if (search) params.set('search', search);
 		if (status !== 'all') params.set('statuses', status);
 		if (type !== 'all') params.set('types', type);
-		
-        if (dateRange?.start) {
-            params.set('startDate', dateRange.start.toString());
-        }
-        if (dateRange?.end) {
-            params.set('endDate', dateRange.end.toString());
-        }
-		
+
+		if (dateRange?.start) {
+			params.set('startDate', dateRange.start.toString());
+		}
+		if (dateRange?.end) {
+			params.set('endDate', dateRange.end.toString());
+		}
+
 		goto(`?${params.toString()}`);
 	}
 
@@ -142,11 +142,11 @@
 			console.error(error);
 		}
 	}
-    
-    function viewDetails(backupId: string) {
-        selectedBackupId = backupId;
-        showDetails = true;
-    }
+
+	function viewDetails(backupId: string) {
+		selectedBackupId = backupId;
+		showDetails = true;
+	}
 </script>
 
 <svelte:head>
@@ -160,7 +160,7 @@
 			<p class="text-muted-foreground">Manage and monitor your database backups.</p>
 		</div>
 		<div class="flex gap-2">
-            <CreateBackupDialog />
+			<CreateBackupDialog />
 			<Button variant="outline" onclick={() => invalidate('app:backups')}>
 				<RefreshCw class="mr-2 h-4 w-4" />
 				Refresh
@@ -173,19 +173,19 @@
 		<Card.Content class="p-4">
 			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
 				<div class="relative">
-					<Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-					<Input 
-						type="search" 
-						placeholder="Search..." 
-						class="pl-8" 
+					<Search class="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+					<Input
+						type="search"
+						placeholder="Search..."
+						class="pl-8"
 						bind:value={search}
 						onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && applyFilters()}
 					/>
 				</div>
-				
+
 				<Select.Root type="single" bind:value={status}>
 					<Select.Trigger>
-						{statuses.find(s => s.value === status)?.label || 'All Statuses'}
+						{statuses.find((s) => s.value === status)?.label || 'All Statuses'}
 					</Select.Trigger>
 					<Select.Content>
 						{#each statuses as s}
@@ -196,7 +196,7 @@
 
 				<Select.Root type="single" bind:value={type}>
 					<Select.Trigger>
-						{types.find(t => t.value === type)?.label || 'All Types'}
+						{types.find((t) => t.value === type)?.label || 'All Types'}
 					</Select.Trigger>
 					<Select.Content>
 						{#each types as t}
@@ -234,7 +234,7 @@
 			<Table.Body>
 				{#if data.backups.length === 0}
 					<Table.Row>
-						<Table.Cell colspan={7} class="text-center h-24 text-muted-foreground">
+						<Table.Cell colspan={7} class="h-24 text-center text-muted-foreground">
 							No backups found.
 						</Table.Cell>
 					</Table.Row>
@@ -243,11 +243,16 @@
 						<Table.Row>
 							<Table.Cell>
 								{#if backup.status === 'completed'}
-									<Badge class="bg-green-500/15 text-green-700 hover:bg-green-500/25 dark:bg-green-500/10 dark:text-green-400">
+									<Badge
+										class="bg-green-500/15 text-green-700 hover:bg-green-500/25 dark:bg-green-500/10 dark:text-green-400"
+									>
 										<CheckCircle2 class="mr-1 h-3 w-3" /> Completed
 									</Badge>
 								{:else if backup.status === 'failed'}
-									<Badge variant="destructive" class="bg-red-500/15 text-red-700 hover:bg-red-500/25 dark:bg-red-500/10 dark:text-red-400">
+									<Badge
+										variant="destructive"
+										class="bg-red-500/15 text-red-700 hover:bg-red-500/25 dark:bg-red-500/10 dark:text-red-400"
+									>
 										<ShieldAlert class="mr-1 h-3 w-3" /> Failed
 									</Badge>
 								{:else if backup.status === 'generating'}
@@ -277,7 +282,9 @@
 							<Table.Cell>
 								{#if backup.error}
 									<span class="text-xs text-destructive" title={backup.error}>
-										{backup.error.length > 50 ? backup.error.substring(0, 50) + '...' : backup.error}
+										{backup.error.length > 50
+											? backup.error.substring(0, 50) + '...'
+											: backup.error}
 									</span>
 								{:else}
 									<span class="text-muted-foreground">-</span>
@@ -295,13 +302,19 @@
 									<DropdownMenu.Content align="end">
 										<DropdownMenu.Label>Actions</DropdownMenu.Label>
 										<DropdownMenu.Separator />
-                                        <DropdownMenu.Item onclick={() => backup.id && viewDetails(backup.id)}>
+										<DropdownMenu.Item onclick={() => backup.id && viewDetails(backup.id)}>
 											<Database class="mr-2 h-4 w-4" /> Details
 										</DropdownMenu.Item>
-										<DropdownMenu.Item onclick={() => backup.id && handleDownload(backup.id)} disabled={backup.status !== 'completed'}>
+										<DropdownMenu.Item
+											onclick={() => backup.id && handleDownload(backup.id)}
+											disabled={backup.status !== 'completed'}
+										>
 											<Download class="mr-2 h-4 w-4" /> Download
 										</DropdownMenu.Item>
-										<DropdownMenu.Item class="text-destructive focus:text-destructive" onclick={() => deleteId = backup.id || null}>
+										<DropdownMenu.Item
+											class="text-destructive focus:text-destructive"
+											onclick={() => (deleteId = backup.id || null)}
+										>
 											<Trash2 class="mr-2 h-4 w-4" /> Delete
 										</DropdownMenu.Item>
 									</DropdownMenu.Content>
@@ -321,11 +334,14 @@
 		<Dialog.Header>
 			<Dialog.Title>Are you sure?</Dialog.Title>
 			<Dialog.Description>
-				This action cannot be undone. This will permanently delete the backup from the database and storage.
+				This action cannot be undone. This will permanently delete the backup from the database and
+				storage.
 			</Dialog.Description>
 		</Dialog.Header>
 		<Dialog.Footer>
-			<Button variant="outline" onclick={() => deleteId = null} disabled={isDeleting}>Cancel</Button>
+			<Button variant="outline" onclick={() => (deleteId = null)} disabled={isDeleting}
+				>Cancel</Button
+			>
 			<Button variant="destructive" onclick={handleDelete} disabled={isDeleting}>
 				{#if isDeleting}
 					<RefreshCw class="mr-2 h-4 w-4 animate-spin" /> Deleting...
