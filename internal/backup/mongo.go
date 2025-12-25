@@ -30,9 +30,6 @@ func (b *MongoBackup) Backup(ctx context.Context, req model.BackupRequest) (stri
 		if req.Database != "" {
 			args = append(args, fmt.Sprintf("--db=%s", req.Database))
 		}
-		if req.AuthSource != "" {
-			args = append(args, fmt.Sprintf("--authenticationDatabase=%s", req.AuthSource))
-		}
 	}
 
 	args = append(args, fmt.Sprintf("--archive=%s", filename), "--gzip")

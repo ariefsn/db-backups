@@ -68,15 +68,15 @@ func ProcessBackup(req model.BackupRequest) string {
 			log.Printf("Failed to create strategy: %v", err)
 
 			// Update to failed status
-			if backupRepo != nil {
-				updateBackupStatus(ctx, req, model.StatusFailed, err.Error())
+			if backupRepo != nil && backupID != "" {
+				updateBackupStatus(ctx, backupID, model.StatusFailed, err.Error())
 			}
 			return
 		}
 
 		// Update to generating status
-		if backupRepo != nil {
-			updateBackupStatus(ctx, req, model.StatusGenerating, "")
+		if backupRepo != nil && backupID != "" {
+			updateBackupStatus(ctx, backupID, model.StatusGenerating, "")
 		}
 
 		filePath, err := strategy.Backup(ctx, req)
@@ -92,8 +92,8 @@ func ProcessBackup(req model.BackupRequest) string {
 			log.Printf("Backup failed for %s: %v", req.Type, err)
 
 			// Update to failed status
-			if backupRepo != nil {
-				updateBackupStatus(ctx, req, model.StatusFailed, err.Error())
+			if backupRepo != nil && backupID != "" {
+				updateBackupStatus(ctx, backupID, model.StatusFailed, err.Error())
 			}
 		} else {
 			log.Printf("Backup completed for %s: %s", req.Type, filePath)
@@ -127,8 +127,8 @@ func ProcessBackup(req model.BackupRequest) string {
 			}
 
 			// Update backup metadata to completed
-			if backupRepo != nil {
-				updateBackupMetadata(ctx, req, filePath, objectKey, fileSize, model.StatusCompleted, "")
+			if backupRepo != nil && backupID != "" {
+				updateBackupMetadata(ctx, backupID, filePath, objectKey, fileSize, model.StatusCompleted, "")
 			}
 
 			// Add metadata
@@ -167,14 +167,14 @@ func saveBackupMetadata(ctx context.Context, req model.BackupRequest, filePath, 
 	}
 }
 
-func updateBackupStatus(ctx context.Context, req model.BackupRequest, status model.BackupStatus, errorMsg string) {
-	if err := backupRepo.UpdateStatus(ctx, req.Host, req.Database, string(req.Type), status, errorMsg); err != nil {
+func updateBackupStatus(ctx context.Context, id string, status model.BackupStatus, errorMsg string) {
+	if err := backupRepo.UpdateBackupStatusByID(ctx, id, status, errorMsg); err != nil {
 		log.Printf("Failed to update backup status: %v", err)
 	}
 }
 
-func updateBackupMetadata(ctx context.Context, req model.BackupRequest, filePath, objectKey string, fileSize int64, status model.BackupStatus, errorMsg string) {
-	if err := backupRepo.UpdateMetadata(ctx, req.Host, req.Database, string(req.Type), filePath, objectKey, fileSize, status, errorMsg); err != nil {
+func updateBackupMetadata(ctx context.Context, id, filePath, objectKey string, fileSize int64, status model.BackupStatus, errorMsg string) {
+	if err := backupRepo.UpdateBackupMetadataByID(ctx, id, filePath, objectKey, fileSize, status, errorMsg); err != nil {
 		log.Printf("Failed to update backup metadata: %v", err)
 	}
 }

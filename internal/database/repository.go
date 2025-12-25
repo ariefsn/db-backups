@@ -4,6 +4,7 @@ import (
 	"context"
 	"db-backup/internal/model"
 	"fmt"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,7 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const backupsCollection = "backups"
+const (
+	backupsCollection   = "backups"
+	databasesCollection = "databases"
+)
 
 type Repository struct {
 	db *mongo.Database
@@ -22,6 +26,116 @@ func NewRepository() *Repository {
 	return &Repository{
 		db: GetDatabase(),
 	}
+}
+
+// SaveDatabase inserts a new database record
+func (r *Repository) SaveDatabase(ctx context.Context, db *model.Database) error {
+	collection := r.db.Collection(databasesCollection)
+
+	// Set created/updated time if not set
+	now := primitive.NewDateTimeFromTime(time.Now())
+	if db.CreatedAt == 0 {
+		db.CreatedAt = now
+	}
+	db.UpdatedAt = now
+
+	result, err := collection.InsertOne(ctx, db)
+	if err != nil {
+		return fmt.Errorf("failed to save database: %w", err)
+	}
+
+	// Set the ID from the insert result
+	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
+		db.ID = oid
+	}
+
+	return nil
+}
+
+// ListDatabases retrieves databases with pagination
+func (r *Repository) ListDatabases(ctx context.Context, page, limit int) ([]model.Database, int64, error) {
+	collection := r.db.Collection(databasesCollection)
+
+	// Calculate skip
+	skip := (page - 1) * limit
+
+	// Get total count
+	total, err := collection.CountDocuments(ctx, bson.M{})
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count databases: %w", err)
+	}
+
+	// Find with pagination and sorting by name
+	findOptions := options.Find().
+		SetSkip(int64(skip)).
+		SetLimit(int64(limit)).
+		SetSort(bson.D{{Key: "name", Value: 1}})
+
+	cursor, err := collection.Find(ctx, bson.M{}, findOptions)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to list databases: %w", err)
+	}
+	defer cursor.Close(ctx)
+
+	var databases = []model.Database{}
+	if err := cursor.All(ctx, &databases); err != nil {
+		return nil, 0, fmt.Errorf("failed to decode databases: %w", err)
+	}
+
+	return databases, total, nil
+}
+
+// GetDatabase retrieves a single database by ID
+func (r *Repository) GetDatabase(ctx context.Context, id string) (*model.Database, error) {
+	collection := r.db.Collection(databasesCollection)
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid database ID: %w", err)
+	}
+
+	var db model.Database
+	err = collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get database: %w", err)
+	}
+
+	return &db, nil
+}
+
+// UpdateDatabase updates a database record
+func (r *Repository) UpdateDatabase(ctx context.Context, db *model.Database) error {
+	collection := r.db.Collection(databasesCollection)
+
+	db.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+
+	_, err := collection.ReplaceOne(ctx, bson.M{"_id": db.ID}, db)
+	if err != nil {
+		return fmt.Errorf("failed to update database: %w", err)
+	}
+
+	return nil
+}
+
+// DeleteDatabase removes a database record
+func (r *Repository) DeleteDatabase(ctx context.Context, id string) error {
+	collection := r.db.Collection(databasesCollection)
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return fmt.Errorf("invalid database ID: %w", err)
+	}
+
+	result, err := collection.DeleteOne(ctx, bson.M{"_id": objectID})
+	if err != nil {
+		return fmt.Errorf("failed to delete database: %w", err)
+	}
+
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("database not found")
+	}
+
+	return nil
 }
 
 // SaveBackup inserts a new backup record
@@ -163,6 +277,31 @@ func (r *Repository) DeleteBackup(ctx context.Context, id string) error {
 	return nil
 }
 
+// UpdateBackupStatusByID updates the status and error message of a backup by ID
+func (r *Repository) UpdateBackupStatusByID(ctx context.Context, id string, status model.BackupStatus, errorMsg string) error {
+	collection := r.db.Collection(backupsCollection)
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return fmt.Errorf("invalid backup ID: %w", err)
+	}
+
+	filter := bson.M{"_id": objectID}
+	update := bson.M{
+		"$set": bson.M{
+			"status": status,
+			"error":  errorMsg,
+		},
+	}
+
+	_, err = collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to update backup status by ID: %w", err)
+	}
+
+	return nil
+}
+
 // UpdateStatus updates the status and error message of the most recent backup for a given host/database/type
 func (r *Repository) UpdateStatus(ctx context.Context, host, database, dbType string, status model.BackupStatus, errorMsg string) error {
 	collection := r.db.Collection(backupsCollection)
@@ -188,6 +327,34 @@ func (r *Repository) UpdateStatus(ctx context.Context, host, database, dbType st
 	err := collection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&result)
 	if err != nil {
 		return fmt.Errorf("failed to update backup status: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateBackupMetadataByID updates the complete metadata of a backup by ID
+func (r *Repository) UpdateBackupMetadataByID(ctx context.Context, id, filePath, objectKey string, fileSize int64, status model.BackupStatus, errorMsg string) error {
+	collection := r.db.Collection(backupsCollection)
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return fmt.Errorf("invalid backup ID: %w", err)
+	}
+
+	filter := bson.M{"_id": objectID}
+	update := bson.M{
+		"$set": bson.M{
+			"filePath":  filePath,
+			"objectKey": objectKey,
+			"fileSize":  fileSize,
+			"status":    status,
+			"error":     errorMsg,
+		},
+	}
+
+	_, err = collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to update backup metadata by ID: %w", err)
 	}
 
 	return nil

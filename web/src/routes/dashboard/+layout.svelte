@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { Button } from '$lib/components/ui/button';
-	import { BarChart3, Database, LogOut, Menu } from '@lucide/svelte';
+	import { BarChart3, Database, LogOut, Menu, Server } from '@lucide/svelte';
 
 	let { children } = $props();
 
 	const sidebarItems = [
 		{ href: '/dashboard', icon: Database, label: 'Backups' },
+		{ href: '/dashboard/databases', icon: Server, label: 'My Databases' },
 		{ href: '/dashboard/stats', icon: BarChart3, label: 'Reports' }
 	];
 

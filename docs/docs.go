@@ -316,6 +316,286 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/databases": {
+            "get": {
+                "description": "List all saved database configurations",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "database"
+                ],
+                "summary": "List all databases",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DatabaseListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Save a new database configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "database"
+                ],
+                "summary": "Create a new database",
+                "parameters": [
+                    {
+                        "description": "Database Configuration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateDatabaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Database"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/databases/{id}": {
+            "get": {
+                "description": "Retrieve a database configuration by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "database"
+                ],
+                "summary": "Get a database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Database ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Database"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "error: Database not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing database configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "database"
+                ],
+                "summary": "Update a database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Database ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Database Configuration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateDatabaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Database"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "error: Database not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a database configuration",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "database"
+                ],
+                "summary": "Delete a database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Database ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Database deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "error: Database not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/databases/{id}/backup": {
+            "post": {
+                "description": "Manually trigger a backup for a saved database configuration",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "database"
+                ],
+                "summary": "Trigger a backup for a database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Database ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Backup job submitted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "error: Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "error: Database not found",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "error: Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.BackupResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -407,10 +687,6 @@ const docTemplate = `{
         "model.BackupRequest": {
             "type": "object",
             "properties": {
-                "authSource": {
-                    "type": "string",
-                    "example": "admin"
-                },
                 "connectionUri": {
                     "type": "string",
                     "example": "mongodb://user:pass@host:port/db"
@@ -495,6 +771,198 @@ const docTemplate = `{
                 "Mongo",
                 "Redis"
             ]
+        },
+        "model.CreateDatabaseRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "type"
+            ],
+            "properties": {
+                "connectionUri": {
+                    "type": "string",
+                    "example": "mongodb://user:pass@host:port/db"
+                },
+                "cronExpression": {
+                    "type": "string",
+                    "example": "0 0 * * *"
+                },
+                "database": {
+                    "type": "string",
+                    "example": "mydb"
+                },
+                "host": {
+                    "type": "string",
+                    "example": "localhost"
+                },
+                "isActive": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "My Production DB"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "pass"
+                },
+                "port": {
+                    "type": "string",
+                    "example": "5432"
+                },
+                "type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.BackupType"
+                        }
+                    ],
+                    "example": "postgre"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "user"
+                },
+                "webhookUrl": {
+                    "type": "string",
+                    "example": "http://example.com/webhook"
+                }
+            }
+        },
+        "model.Database": {
+            "type": "object",
+            "properties": {
+                "connectionUri": {
+                    "type": "string",
+                    "example": "mongodb://user:pass@host:port/db"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "cronExpression": {
+                    "type": "string",
+                    "example": "0 0 * * *"
+                },
+                "database": {
+                    "type": "string",
+                    "example": "mydb"
+                },
+                "host": {
+                    "type": "string",
+                    "example": "localhost"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "My Production DB"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "pass"
+                },
+                "port": {
+                    "type": "string",
+                    "example": "5432"
+                },
+                "type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.BackupType"
+                        }
+                    ],
+                    "example": "postgre"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "user"
+                },
+                "webhookUrl": {
+                    "type": "string",
+                    "example": "http://example.com/webhook"
+                }
+            }
+        },
+        "model.DatabaseListResponse": {
+            "type": "object",
+            "properties": {
+                "databases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Database"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.UpdateDatabaseRequest": {
+            "type": "object",
+            "properties": {
+                "connectionUri": {
+                    "type": "string",
+                    "example": "mongodb://user:pass@host:port/db"
+                },
+                "cronExpression": {
+                    "type": "string",
+                    "example": "0 0 * * *"
+                },
+                "database": {
+                    "type": "string",
+                    "example": "mydb"
+                },
+                "host": {
+                    "type": "string",
+                    "example": "localhost"
+                },
+                "isActive": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "My Production DB"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "pass"
+                },
+                "port": {
+                    "type": "string",
+                    "example": "5432"
+                },
+                "type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.BackupType"
+                        }
+                    ],
+                    "example": "postgre"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "user"
+                },
+                "webhookUrl": {
+                    "type": "string",
+                    "example": "http://example.com/webhook"
+                }
+            }
         }
     }
 }`

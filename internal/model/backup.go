@@ -24,7 +24,6 @@ type BackupRequest struct {
 	WebhookURL    string     `json:"webhookUrl" example:"http://example.com/webhook"`
 	Database      string     `json:"database" example:"mydb"`
 	ConnectionURI string     `json:"connectionUri" example:"mongodb://user:pass@host:port/db"`
-	AuthSource    string     `json:"authSource" example:"admin"`
 }
 
 type BackupResult struct {

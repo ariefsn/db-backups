@@ -14,5 +14,10 @@ export type { model_BackupRequest } from './models/model_BackupRequest';
 export type { model_BackupResponse } from './models/model_BackupResponse';
 export { model_BackupStatus } from './models/model_BackupStatus';
 export { model_BackupType } from './models/model_BackupType';
+export type { model_CreateDatabaseRequest } from './models/model_CreateDatabaseRequest';
+export type { model_Database } from './models/model_Database';
+export type { model_DatabaseListResponse } from './models/model_DatabaseListResponse';
+export type { model_UpdateDatabaseRequest } from './models/model_UpdateDatabaseRequest';
 
 export { BackupService } from './services/BackupService';
+export { DatabaseService } from './services/DatabaseService';

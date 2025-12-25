@@ -13,6 +13,7 @@ import (
 	"db-backup/internal/api"
 	"db-backup/internal/cron"
 	"db-backup/internal/database"
+	"db-backup/internal/scheduler"
 	"db-backup/internal/worker"
 
 	"github.com/joho/godotenv"
@@ -50,6 +51,17 @@ func main() {
 
 	// Initialize API handlers
 	api.InitializeHandlers()
+
+	// Initialize Scheduler
+	schedulerRepo := database.NewRepository()
+	jobScheduler, err := scheduler.NewScheduler(schedulerRepo)
+	if err != nil {
+		log.Printf("Warning: Failed to create scheduler: %v", err)
+	} else {
+		jobScheduler.Start()
+		defer jobScheduler.Stop()
+		api.SetScheduler(jobScheduler)
+	}
 
 	// Start cleanup cron
 	cron.StartCleanupCron()

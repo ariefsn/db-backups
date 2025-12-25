@@ -57,9 +57,6 @@ definitions:
     type: object
   model.BackupRequest:
     properties:
-      authSource:
-        example: admin
-        type: string
       connectionUri:
         example: mongodb://user:pass@host:port/db
         type: string
@@ -121,6 +118,139 @@ definitions:
     - MySQL
     - Mongo
     - Redis
+  model.CreateDatabaseRequest:
+    properties:
+      connectionUri:
+        example: mongodb://user:pass@host:port/db
+        type: string
+      cronExpression:
+        example: 0 0 * * *
+        type: string
+      database:
+        example: mydb
+        type: string
+      host:
+        example: localhost
+        type: string
+      isActive:
+        example: true
+        type: boolean
+      name:
+        example: My Production DB
+        type: string
+      password:
+        example: pass
+        type: string
+      port:
+        example: "5432"
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/model.BackupType'
+        example: postgre
+      username:
+        example: user
+        type: string
+      webhookUrl:
+        example: http://example.com/webhook
+        type: string
+    required:
+    - name
+    - type
+    type: object
+  model.Database:
+    properties:
+      connectionUri:
+        example: mongodb://user:pass@host:port/db
+        type: string
+      createdAt:
+        type: string
+      cronExpression:
+        example: 0 0 * * *
+        type: string
+      database:
+        example: mydb
+        type: string
+      host:
+        example: localhost
+        type: string
+      id:
+        type: string
+      isActive:
+        example: true
+        type: boolean
+      name:
+        example: My Production DB
+        type: string
+      password:
+        example: pass
+        type: string
+      port:
+        example: "5432"
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/model.BackupType'
+        example: postgre
+      updatedAt:
+        type: string
+      username:
+        example: user
+        type: string
+      webhookUrl:
+        example: http://example.com/webhook
+        type: string
+    type: object
+  model.DatabaseListResponse:
+    properties:
+      databases:
+        items:
+          $ref: '#/definitions/model.Database'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.UpdateDatabaseRequest:
+    properties:
+      connectionUri:
+        example: mongodb://user:pass@host:port/db
+        type: string
+      cronExpression:
+        example: 0 0 * * *
+        type: string
+      database:
+        example: mydb
+        type: string
+      host:
+        example: localhost
+        type: string
+      isActive:
+        example: true
+        type: boolean
+      name:
+        example: My Production DB
+        type: string
+      password:
+        example: pass
+        type: string
+      port:
+        example: "5432"
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/model.BackupType'
+        example: postgre
+      username:
+        example: user
+        type: string
+      webhookUrl:
+        example: http://example.com/webhook
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -328,4 +458,189 @@ paths:
       summary: Get backup statistics
       tags:
       - backup
+  /databases:
+    get:
+      description: List all saved database configurations
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DatabaseListResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: List all databases
+      tags:
+      - database
+    post:
+      consumes:
+      - application/json
+      description: Save a new database configuration
+      parameters:
+      - description: Database Configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateDatabaseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Database'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Create a new database
+      tags:
+      - database
+  /databases/{id}:
+    delete:
+      description: Delete a database configuration
+      parameters:
+      - description: Database ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Database deleted successfully
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "404":
+          description: 'error: Database not found'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Delete a database
+      tags:
+      - database
+    get:
+      description: Retrieve a database configuration by ID
+      parameters:
+      - description: Database ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Database'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "404":
+          description: 'error: Database not found'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Get a database
+      tags:
+      - database
+    put:
+      consumes:
+      - application/json
+      description: Update an existing database configuration
+      parameters:
+      - description: Database ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Database Configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateDatabaseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Database'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "404":
+          description: 'error: Database not found'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Update a database
+      tags:
+      - database
+  /databases/{id}/backup:
+    post:
+      description: Manually trigger a backup for a saved database configuration
+      parameters:
+      - description: Database ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Backup job submitted successfully
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "400":
+          description: 'error: Bad request'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "404":
+          description: 'error: Database not found'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+        "500":
+          description: 'error: Internal server error'
+          schema:
+            $ref: '#/definitions/model.BackupResponse'
+      summary: Trigger a backup for a database
+      tags:
+      - database
 swagger: "2.0"

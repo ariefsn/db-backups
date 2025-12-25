@@ -4,14 +4,29 @@ A generic database backup application capable of backing up PostgreSQL, MySQL, M
 
 [GitHub](https://github.com/ariefsn/db-backups) | [Docker Hub](https://hub.docker.com/r/ariefsn/db-backup)
 
+## Previews
+
+<div align="center" style="display: flex; justify-content: center; gap: 8px;">
+  <div style="display: flex; flex-direction: column; gap: 8px; width: 50%;">
+    <img src="assets/%5BDBB%5D%20Backups.png" alt="Backups List" />
+    <img src="assets/%5BDBB%5D%20My%20Databases.png" alt="Database Management" />
+    <img src="assets/%5BDBB%5D%20Stats.png" alt="Statistics Dashboard" />
+  </div>
+  <!-- <div style="display: flex; flex-direction: column; gap: 8px; width: 50%;">
+    <img src="assets/%5BDBB%5D%20Backups%20Form.png" alt="Create Backup Form" />
+  </div> -->
+</div>
+
 ## Features
 
 - **Multi-Database Support**: PostgreSQL, MySQL, MongoDB, Redis.
+- **Automated Backups**: Schedule recurring backups using standard cron expressions.
+- **Database Management**: Save and manage multiple database configurations (CRUD).
 - **Background Backups**: Non-blocking backup operations.
 - **Cloud Storage**: Automatic upload to Cloudflare R2 (S3-compatible).
 - **Backup Management**: MongoDB-backed metadata storage with pagination.
 - **Webhook Notifications**: Receive JSON payloads with object keys and metadata upon backup completion or failure.
-- **REST API**: List and delete backups via API endpoints.
+- **REST API**: Comprehensive API for managing backups and database configurations.
 - **Automatic Cleanup**: Daily cron job to remove backups older than 7 days.
 - **Swagger Documentation**: Interactive API docs.
 - **Docker Ready**: Pre-built image with all necessary database tools.
@@ -103,18 +118,30 @@ This will run:
 ```json
 {
   "type": "postgre",
+  "name": "My Prod DB",
   "host": "postgres-host",
   "port": "5432",
   "username": "user",
   "password": "password",
   "database": "mydb",
-  "webhookUrl": "https://your-webhook.com/callback"
+  "webhookUrl": "https://your-webhook.com/callback",
+  "cronExpression": "0 0 * * *",
+  "isActive": true
 }
 ```
 
 **Supported Types**: `postgre`, `mysql`, `mongo`, `redis`
 
 **Response**: 202 Accepted
+
+### Manage Databases
+
+**GET** `/databases` - List all saved database configurations
+**POST** `/databases` - Create a new database configuration
+**GET** `/databases/{id}` - Get a single database configuration
+**PUT** `/databases/{id}` - Update a database configuration
+**DELETE** `/databases/{id}` - Delete a database configuration
+**POST** `/databases/{id}/backup` - Manually trigger backup for a saved database
 
 ### List Backups
 

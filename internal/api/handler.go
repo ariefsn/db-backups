@@ -4,6 +4,7 @@ import (
 	"context"
 	"db-backup/internal/database"
 	"db-backup/internal/model"
+	"db-backup/internal/scheduler"
 	"db-backup/internal/storage"
 	"db-backup/internal/worker"
 	"encoding/json"
@@ -20,7 +21,13 @@ import (
 var (
 	backupRepo    *database.Repository
 	storageClient *storage.Client
+	jobScheduler  *scheduler.Scheduler
 )
+
+// SetScheduler sets the scheduler instance for the API package
+func SetScheduler(s *scheduler.Scheduler) {
+	jobScheduler = s
+}
 
 // InitializeHandlers initializes the API handler dependencies
 func InitializeHandlers() {

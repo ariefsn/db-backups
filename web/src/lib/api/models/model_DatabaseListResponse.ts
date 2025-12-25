@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { model_BackupMetadata } from './model_BackupMetadata';
-export type model_BackupListResponse = {
-    backups?: Array<model_BackupMetadata>;
+import type { model_Database } from './model_Database';
+export type model_DatabaseListResponse = {
+    databases?: Array<model_Database>;
     limit?: number;
     page?: number;
     total?: number;

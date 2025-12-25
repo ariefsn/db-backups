@@ -2,13 +2,29 @@
 
 A modern, user-friendly web interface for managing your database backups. Built with SvelteKit and Shadcn UI.
 
+## Screenshots
+
+### Dashboard Statistics
+![Stats](../assets/%5BDBB%5D%20Stats.png)
+
+### Database Management
+![My Databases](../assets/%5BDBB%5D%20My%20Databases.png)
+
+### Backup History
+![Backups](../assets/%5BDBB%5D%20Backups.png)
+
+### create Backup Form
+![Backup Form](../assets/%5BDBB%5D%20Backups%20Form.png)
+
 ## Features
 
 - **Multi-Database Support**: Create backups for PostgreSQL, MySQL, MongoDB, and Redis.
+- **My Databases**: Manage saved database configurations for quick backup triggering and automation.
+- **Automated Backups**: Configure cron schedules for each database configuration.
 - **Flexible Connection Methods**: Support for both standard connection strings and manual host/user/pass forms.
 - **Dashboard**: Monitor all your backups in one place with real-time status updates.
 - **Backup Management**:
-  - Create new backups on-demand.
+  - Create new backups on-demand using saved configurations or manual details.
   - Download backup files directly (via presigned URLs).
   - Delete old backups (removes from both metadata and object storage).
 - **Statistics**: View reports and statistics about your backup history.

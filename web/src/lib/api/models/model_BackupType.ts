@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export enum model_BackupType {
-	Postgres = 'postgre',
-	MySQL = 'mysql',
-	Mongo = 'mongo',
-	Redis = 'redis'
+    Postgres = 'postgre',
+    MySQL = 'mysql',
+    Mongo = 'mongo',
+    Redis = 'redis',
 }
