@@ -21,10 +21,12 @@ A generic database backup application capable of backing up PostgreSQL, MySQL, M
 
 - **Multi-Database Support**: PostgreSQL, MySQL, MongoDB, Redis.
 - **Automated Backups**: Schedule recurring backups using standard cron expressions.
-- **Database Management**: Save and manage multiple database configurations (CRUD).
-- **Background Backups**: Non-blocking backup operations.
+- **Database Management**: Save and manage multiple database configurations (CRUD) with connection string support.
+- **Background Backups**: Non-blocking backup operations with detailed lifecycle tracking.
+- **Detailed Status Tracking**: Track backups through `pending`, `generating`, `completed`, and `failed` states.
 - **Cloud Storage**: Automatic upload to Cloudflare R2 (S3-compatible).
-- **Backup Management**: MongoDB-backed metadata storage with pagination.
+- **Backup Management**: MongoDB-backed metadata storage with pagination and status filtering.
+- **Download & Delete**: Download backups via presigned URLs or delete them from both local/cloud storage.
 - **Webhook Notifications**: Receive JSON payloads with object keys and metadata upon backup completion or failure.
 - **REST API**: Comprehensive API for managing backups and database configurations.
 - **Automatic Cleanup**: Daily cron job to remove backups older than 7 days.
@@ -124,11 +126,15 @@ This will run:
   "username": "user",
   "password": "password",
   "database": "mydb",
+  "connectionUri": "postgresql://user:pass@host:5432/mydb",
   "webhookUrl": "https://your-webhook.com/callback",
   "cronExpression": "0 0 * * *",
   "isActive": true
 }
 ```
+
+> [!NOTE]
+> You can use either the individual host/port/user fields OR a `connectionUri`. If `connectionUri` is provided, it takes precedence.
 
 **Supported Types**: `postgre`, `mysql`, `mongo`, `redis`
 

@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -334,41 +335,50 @@ func HandleDownloadBackup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if storage client is available
-	if storageClient == nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(model.BackupResponse{
-			Success: false,
-			Message: "Storage client not available",
+	// Check if storage client is available and backup has an object key
+	if storageClient != nil && backup.ObjectKey != "" {
+		// Generate presigned URL (valid for 1 hour)
+		url, err := storageClient.GetPresignedURL(ctx, backup.ObjectKey, 1*time.Hour)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(model.BackupResponse{
+				Success: false,
+				Message: "Failed to generate download URL",
+				Error:   err.Error(),
+			})
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{
+			"url": url,
 		})
 		return
 	}
 
-	// Check if backup has an object key
-	if backup.ObjectKey == "" {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(model.BackupResponse{
-			Success: false,
-			Message: "Backup file not found in storage",
-		})
+	// Fallback to local file download if FilePath exists
+	if backup.FilePath != "" {
+		// Verify file exists
+		if _, err := os.Stat(backup.FilePath); err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(model.BackupResponse{
+				Success: false,
+				Message: "Local backup file not found",
+				Error:   err.Error(),
+			})
+			return
+		}
+
+		// For local download, we'll return a path that our frontend can use to download directly
+		// or if we want to serve it through the same endpoint:
+		http.ServeFile(w, r, backup.FilePath)
 		return
 	}
 
-	// Generate presigned URL (valid for 1 hour)
-	url, err := storageClient.GetPresignedURL(ctx, backup.ObjectKey, 1*time.Hour)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(model.BackupResponse{
-			Success: false,
-			Message: "Failed to generate download URL",
-			Error:   err.Error(),
-		})
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"url": url,
+	w.WriteHeader(http.StatusNotFound)
+	json.NewEncoder(w).Encode(model.BackupResponse{
+		Success: false,
+		Message: "Backup file not found in storage or locally",
 	})
 }
 

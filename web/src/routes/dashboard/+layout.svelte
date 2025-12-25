@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import ModeToggle from '$lib/components/ModeToggle.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { BarChart3, Database, LogOut, Menu, Server } from '@lucide/svelte';
 
@@ -40,8 +41,9 @@
 				</a>
 			{/each}
 		</nav>
-		<div class="border-t p-4">
-			<Button variant="ghost" class="w-full justify-start gap-2" href="/">
+		<div class="flex items-center gap-2 border-t p-4">
+			<ModeToggle />
+			<Button variant="ghost" class="flex-1 justify-start gap-2" href="/">
 				<LogOut class="h-4 w-4" />
 				Exit
 			</Button>
@@ -52,11 +54,14 @@
 	<!-- TODO: Implement Sheet for mobile sidebar -->
 
 	<main class="flex-1 overflow-y-auto">
-		<header class="flex h-14 items-center border-b px-6 lg:hidden">
-			<Button variant="ghost" size="icon" class="mr-2">
-				<Menu class="h-5 w-5" />
-			</Button>
-			<span class="font-bold">DbBackup</span>
+		<header class="flex h-14 items-center justify-between border-b px-6 lg:hidden">
+			<div class="flex items-center">
+				<Button variant="ghost" size="icon" class="mr-2">
+					<Menu class="h-5 w-5" />
+				</Button>
+				<span class="font-bold">DbBackup</span>
+			</div>
+			<ModeToggle />
 		</header>
 		<div class="p-6">
 			{@render children()}

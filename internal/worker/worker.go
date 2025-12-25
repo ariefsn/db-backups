@@ -128,7 +128,17 @@ func ProcessBackup(req model.BackupRequest) string {
 
 			// Update backup metadata to completed
 			if backupRepo != nil && backupID != "" {
-				updateBackupMetadata(ctx, backupID, filePath, objectKey, fileSize, model.StatusCompleted, "")
+				dbFilePath := filePath
+				if objectKey != "" {
+					// If uploaded successfully, delete local file and clear filePath in DB
+					if err := os.Remove(filePath); err != nil {
+						log.Printf("Failed to delete local backup file: %v", err)
+					} else {
+						log.Printf("Deleted local backup file: %s", filePath)
+						dbFilePath = "" // Clear in DB
+					}
+				}
+				updateBackupMetadata(ctx, backupID, dbFilePath, objectKey, fileSize, model.StatusCompleted, "")
 			}
 
 			// Add metadata

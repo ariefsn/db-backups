@@ -22,13 +22,15 @@ A modern, user-friendly web interface for managing your database backups. Built 
 - **My Databases**: Manage saved database configurations for quick backup triggering and automation.
 - **Automated Backups**: Configure cron schedules for each database configuration.
 - **Flexible Connection Methods**: Support for both standard connection strings and manual host/user/pass forms.
-- **Dashboard**: Monitor all your backups in one place with real-time status updates.
+- **Modern Dashboard**: Monitor all your backups in one place with real-time status updates, live logs, and advanced filtering.
 - **Backup Management**:
   - Create new backups on-demand using saved configurations or manual details.
   - Download backup files directly (via presigned URLs).
   - Delete old backups (removes from both metadata and object storage).
+- **Filtering & Search**: Easily find backups by status, database type, or date range using the integrated date picker.
 - **Statistics**: View reports and statistics about your backup history.
 - **Object Storage Integration**: Seamlessly works with S3-compatible storage (Cloudflare R2, AWS S3, etc.).
+- **Atomic Design**: Built with a modular component architecture using Shadcn UI for a consistent and accessible experience.
 
 ## Tech Stack
 

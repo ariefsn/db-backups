@@ -156,12 +156,14 @@
 				<div class="space-y-4">
 					<h4 class="leading-none font-medium">Storage Information</h4>
 					<div class="grid gap-2 text-sm">
-						<div>
-							<p class="mb-1 text-muted-foreground">Object Key</p>
-							<code class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-								{backup.objectKey}
-							</code>
-						</div>
+						{#if backup.objectKey}
+							<div>
+								<p class="mb-1 text-muted-foreground">Object Key</p>
+								<code class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
+									{backup.objectKey}
+								</code>
+							</div>
+						{/if}
 						{#if backup.filePath}
 							<div>
 								<p class="mb-1 text-muted-foreground">Local Path</p>
@@ -169,6 +171,9 @@
 									{backup.filePath}
 								</code>
 							</div>
+						{/if}
+						{#if !backup.objectKey && !backup.filePath}
+							<p class="text-muted-foreground italic">No storage information available</p>
 						{/if}
 					</div>
 				</div>

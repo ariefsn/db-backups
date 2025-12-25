@@ -44,7 +44,13 @@ export function parseConnectionString(uri: string) {
     // For others, it's usually the first segment of the path
     let database = url.pathname.replace(/^\//, '');
 
-    // If there's a slash in the database name (e.g. for options), take only the first part
+    // If there's a question mark in the database name (some browsers don't split search 
+    // from pathname for non-standard schemes like mongodb://)
+    if (database.includes('?')) {
+      database = database.split('?')[0];
+    }
+
+    // If there's a slash in the database name (e.g. for options or collections), take only the first part
     if (database.includes('/')) {
       database = database.split('/')[0];
     }
