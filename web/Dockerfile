@@ -1,8 +1,12 @@
 # ===================================================
 # Base stage
 # ===================================================
+# Install/build stages are pinned to the BUILD platform (the runner's native
+# arch) so npm never runs under QEMU emulation when producing arm64 images.
+# Only the final `runner` stage is built for the TARGET platform — it just
+# copies the arch-independent SvelteKit build + pure-JS node_modules.
 # FROM oven/bun:1.3.5-alpine AS base
-FROM node:22-alpine AS base
+FROM --platform=$BUILDPLATFORM node:22-alpine AS base
 RUN apk add --no-cache ca-certificates curl
 WORKDIR /app
 
@@ -13,12 +17,9 @@ FROM base AS deps
 
 ENV HUSKY=0
 
-# COPY bun.lock* package.json ./
-COPY package.json ./
-
-# Install all dependencies for build (dev + prod)
-# RUN bun install --frozen-lockfile
-RUN npm install
+# Use the lockfile for fast, reproducible installs (npm ci).
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # ===================================================
 # Builder stage
@@ -40,7 +41,6 @@ ARG APP_NAME="Database Backup Manager"
 ENV APP_NAME=$APP_NAME
 
 # Build SvelteKit for production
-# RUN bun -b run build
 RUN npm run build
 
 # ===================================================
@@ -50,17 +50,15 @@ FROM base AS prod-deps
 
 ENV HUSKY=0
 
-# COPY bun.lock* package.json ./
-COPY package-lock.json package.json ./
-
-# Install only production deps
-# RUN bun install --production --frozen-lockfile
-RUN npm install --production
+# Install only production deps from the lockfile.
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 # ===================================================
-# Runner stage (minimal, production)
+# Runner stage (minimal, production) — built for the TARGET platform
 # ===================================================
-FROM base AS runner
+FROM node:22-alpine AS runner
+RUN apk add --no-cache ca-certificates curl
 WORKDIR /app
 
 # Create non-root user
