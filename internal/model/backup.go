@@ -17,6 +17,7 @@ const (
 
 type BackupRequest struct {
 	Type          BackupType `json:"type" example:"postgre"`
+	Name          string     `json:"name" example:"My Production DB"`
 	Host          string     `json:"host" example:"localhost"`
 	Port          string     `json:"port" example:"5432"`
 	Username      string     `json:"username" example:"user"`
@@ -56,6 +57,7 @@ const (
 type BackupMetadata struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Type      string             `bson:"type" json:"type"`
+	Name      string             `bson:"name" json:"name"`
 	ObjectKey string             `bson:"objectKey" json:"objectKey"`
 	FilePath  string             `bson:"filePath" json:"filePath"`
 	FileSize  int64              `bson:"fileSize" json:"fileSize"`

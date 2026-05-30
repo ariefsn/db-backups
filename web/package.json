@@ -14,7 +14,7 @@
 		"lint": "prettier --check . && eslint .",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run",
-		"generate:api": "openapi --input http://localhost:8080/swagger/doc.json --output ./src/lib/api --client fetch"
+		"generate:api": "node ./scripts/generate-api.mjs"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.4.0",

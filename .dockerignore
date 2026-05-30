@@ -1,0 +1,24 @@
+# VCS
+.git
+.gitignore
+
+# Frontend (built as a separate image with its own context)
+web
+
+# Docs & meta
+*.md
+LICENSE
+
+# Local artifacts
+backups
+db-backup
+cmd/server/__debug_bin*
+
+# Secrets / env
+.env
+.env.*
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store

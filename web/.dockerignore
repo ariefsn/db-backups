@@ -1,0 +1,20 @@
+# VCS
+.git
+.gitignore
+
+# Dependencies & build output (reinstalled/rebuilt inside the image)
+node_modules
+.svelte-kit
+build
+
+# Secrets / env
+.env
+.env.*
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+
+# Docs
+*.md

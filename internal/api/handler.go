@@ -44,6 +44,7 @@ func InitializeHandlers() {
 
 // HandleBackup godoc
 // @Summary Trigger a database backup
+// @ID post-backup
 // @Description Queue a backup job for the specified database
 // @Tags backup
 // @Accept json
@@ -88,6 +89,7 @@ func HandleBackup(w http.ResponseWriter, r *http.Request) {
 
 // HandleListBackups godoc
 // @Summary List all backups
+// @ID get-backups
 // @Description Get a paginated list of all backups with optional filtering
 // @Tags backup
 // @Produce json
@@ -191,6 +193,7 @@ func HandleListBackups(w http.ResponseWriter, r *http.Request) {
 
 // HandleGetBackup godoc
 // @Summary Get a single backup
+// @ID get-backup-by-id
 // @Description Retrieve a single backup by ID
 // @Tags backup
 // @Produce json
@@ -233,6 +236,7 @@ func HandleGetBackup(w http.ResponseWriter, r *http.Request) {
 
 // HandleDeleteBackup godoc
 // @Summary Delete a backup
+// @ID delete-backups
 // @Description Delete a backup from both MongoDB and R2 storage
 // @Tags backup
 // @Produce json
@@ -298,6 +302,7 @@ func HandleDeleteBackup(w http.ResponseWriter, r *http.Request) {
 
 // HandleDownloadBackup godoc
 // @Summary Download a backup file
+// @ID get-backups-download
 // @Description Generate a presigned URL to download a backup file from R2 storage
 // @Tags backup
 // @Produce json
@@ -384,6 +389,7 @@ func HandleDownloadBackup(w http.ResponseWriter, r *http.Request) {
 
 // HandleGetBackupStats godoc
 // @Summary Get backup statistics
+// @ID get-backups-stats
 // @Description Retrieve aggregated backup statistics by type and status
 // @Tags backup
 // @Produce json

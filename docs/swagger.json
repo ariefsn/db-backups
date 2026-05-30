@@ -22,6 +22,7 @@
                     "backup"
                 ],
                 "summary": "Trigger a database backup",
+                "operationId": "post-backup",
                 "parameters": [
                     {
                         "description": "Backup Request",
@@ -59,6 +60,7 @@
                     "backup"
                 ],
                 "summary": "List all backups",
+                "operationId": "get-backups",
                 "parameters": [
                     {
                         "type": "integer",
@@ -139,6 +141,7 @@
                     "backup"
                 ],
                 "summary": "Get backup statistics",
+                "operationId": "get-backups-stats",
                 "parameters": [
                     {
                         "type": "string",
@@ -179,6 +182,7 @@
                     "backup"
                 ],
                 "summary": "Get a single backup",
+                "operationId": "get-backup-by-id",
                 "parameters": [
                     {
                         "type": "string",
@@ -224,6 +228,7 @@
                     "backup"
                 ],
                 "summary": "Delete a backup",
+                "operationId": "delete-backups",
                 "parameters": [
                     {
                         "type": "string",
@@ -271,6 +276,7 @@
                     "backup"
                 ],
                 "summary": "Download a backup file",
+                "operationId": "get-backups-download",
                 "parameters": [
                     {
                         "type": "string",
@@ -321,6 +327,7 @@
                     "database"
                 ],
                 "summary": "List all databases",
+                "operationId": "get-databases",
                 "parameters": [
                     {
                         "type": "integer",
@@ -362,6 +369,7 @@
                     "database"
                 ],
                 "summary": "Create a new database",
+                "operationId": "post-databases",
                 "parameters": [
                     {
                         "description": "Database Configuration",
@@ -405,6 +413,7 @@
                     "database"
                 ],
                 "summary": "Get a database",
+                "operationId": "get-database-by-id",
                 "parameters": [
                     {
                         "type": "string",
@@ -453,6 +462,7 @@
                     "database"
                 ],
                 "summary": "Update a database",
+                "operationId": "put-databases",
                 "parameters": [
                     {
                         "type": "string",
@@ -507,6 +517,7 @@
                     "database"
                 ],
                 "summary": "Delete a database",
+                "operationId": "delete-databases",
                 "parameters": [
                     {
                         "type": "string",
@@ -554,6 +565,7 @@
                     "database"
                 ],
                 "summary": "Trigger a backup for a database",
+                "operationId": "post-databases-backup",
                 "parameters": [
                     {
                         "type": "string",
@@ -659,6 +671,9 @@
                 "id": {
                     "type": "string"
                 },
+                "name": {
+                    "type": "string"
+                },
                 "objectKey": {
                     "type": "string"
                 },
@@ -692,6 +707,10 @@
                 "host": {
                     "type": "string",
                     "example": "localhost"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "My Production DB"
                 },
                 "password": {
                     "type": "string",

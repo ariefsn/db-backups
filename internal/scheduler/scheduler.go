@@ -75,6 +75,7 @@ func (s *Scheduler) AddJob(db *model.Database) error {
 				log.Printf("Running scheduled backup for %s", db.Name)
 				req := model.BackupRequest{
 					Type:          db.Type,
+					Name:          db.Name,
 					Host:          db.Host,
 					Port:          db.Port,
 					Username:      db.Username,

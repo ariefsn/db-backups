@@ -221,7 +221,7 @@
 			</div>
 
 			<div class="flex items-center space-x-2">
-				<input type="checkbox" id="isActive" bind:checked={isActive} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+				<input type="checkbox" id="isActive" bind:checked={isActive} class="h-4 w-4 cursor-pointer appearance-auto accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background" />
 				<label for="isActive" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
 					Active (Enable automated backups)
 				</label>

@@ -7,6 +7,7 @@ export type model_BackupRequest = {
     connectionUri?: string;
     database?: string;
     host?: string;
+    name?: string;
     password?: string;
     port?: string;
     type?: model_BackupType;

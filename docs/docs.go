@@ -28,6 +28,7 @@ const docTemplate = `{
                     "backup"
                 ],
                 "summary": "Trigger a database backup",
+                "operationId": "post-backup",
                 "parameters": [
                     {
                         "description": "Backup Request",
@@ -65,6 +66,7 @@ const docTemplate = `{
                     "backup"
                 ],
                 "summary": "List all backups",
+                "operationId": "get-backups",
                 "parameters": [
                     {
                         "type": "integer",
@@ -145,6 +147,7 @@ const docTemplate = `{
                     "backup"
                 ],
                 "summary": "Get backup statistics",
+                "operationId": "get-backups-stats",
                 "parameters": [
                     {
                         "type": "string",
@@ -185,6 +188,7 @@ const docTemplate = `{
                     "backup"
                 ],
                 "summary": "Get a single backup",
+                "operationId": "get-backup-by-id",
                 "parameters": [
                     {
                         "type": "string",
@@ -230,6 +234,7 @@ const docTemplate = `{
                     "backup"
                 ],
                 "summary": "Delete a backup",
+                "operationId": "delete-backups",
                 "parameters": [
                     {
                         "type": "string",
@@ -277,6 +282,7 @@ const docTemplate = `{
                     "backup"
                 ],
                 "summary": "Download a backup file",
+                "operationId": "get-backups-download",
                 "parameters": [
                     {
                         "type": "string",
@@ -327,6 +333,7 @@ const docTemplate = `{
                     "database"
                 ],
                 "summary": "List all databases",
+                "operationId": "get-databases",
                 "parameters": [
                     {
                         "type": "integer",
@@ -368,6 +375,7 @@ const docTemplate = `{
                     "database"
                 ],
                 "summary": "Create a new database",
+                "operationId": "post-databases",
                 "parameters": [
                     {
                         "description": "Database Configuration",
@@ -411,6 +419,7 @@ const docTemplate = `{
                     "database"
                 ],
                 "summary": "Get a database",
+                "operationId": "get-database-by-id",
                 "parameters": [
                     {
                         "type": "string",
@@ -459,6 +468,7 @@ const docTemplate = `{
                     "database"
                 ],
                 "summary": "Update a database",
+                "operationId": "put-databases",
                 "parameters": [
                     {
                         "type": "string",
@@ -513,6 +523,7 @@ const docTemplate = `{
                     "database"
                 ],
                 "summary": "Delete a database",
+                "operationId": "delete-databases",
                 "parameters": [
                     {
                         "type": "string",
@@ -560,6 +571,7 @@ const docTemplate = `{
                     "database"
                 ],
                 "summary": "Trigger a backup for a database",
+                "operationId": "post-databases-backup",
                 "parameters": [
                     {
                         "type": "string",
@@ -665,6 +677,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "name": {
+                    "type": "string"
+                },
                 "objectKey": {
                     "type": "string"
                 },
@@ -698,6 +713,10 @@ const docTemplate = `{
                 "host": {
                     "type": "string",
                     "example": "localhost"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "My Production DB"
                 },
                 "password": {
                     "type": "string",

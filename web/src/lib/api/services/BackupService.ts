@@ -2,14 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { CancelablePromise } from '../core/CancelablePromise';
-import { OpenAPI } from '../core/OpenAPI';
-import { request as __request } from '../core/request';
 import type { database_BackupStats } from '../models/database_BackupStats';
 import type { model_BackupListResponse } from '../models/model_BackupListResponse';
 import type { model_BackupMetadata } from '../models/model_BackupMetadata';
 import type { model_BackupRequest } from '../models/model_BackupRequest';
 import type { model_BackupResponse } from '../models/model_BackupResponse';
+import type { CancelablePromise } from '../core/CancelablePromise';
+import { OpenAPI } from '../core/OpenAPI';
+import { request as __request } from '../core/request';
 export class BackupService {
     /**
      * Trigger a database backup

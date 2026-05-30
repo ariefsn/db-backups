@@ -157,6 +157,7 @@ func ProcessBackup(req model.BackupRequest) string {
 func saveBackupMetadata(ctx context.Context, req model.BackupRequest, filePath, objectKey string, fileSize int64, status model.BackupStatus, errorMsg string, timestamp time.Time) string {
 	metadata := &model.BackupMetadata{
 		Type:      string(req.Type),
+		Name:      req.Name,
 		ObjectKey: objectKey,
 		FilePath:  filePath,
 		FileSize:  fileSize,

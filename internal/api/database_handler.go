@@ -14,6 +14,7 @@ import (
 
 // HandleListDatabases godoc
 // @Summary List all databases
+// @ID get-databases
 // @Description List all saved database configurations
 // @Tags database
 // @Produce json
@@ -60,6 +61,7 @@ func HandleListDatabases(w http.ResponseWriter, r *http.Request) {
 
 // HandleCreateDatabase godoc
 // @Summary Create a new database
+// @ID post-databases
 // @Description Save a new database configuration
 // @Tags database
 // @Accept json
@@ -121,6 +123,7 @@ func HandleCreateDatabase(w http.ResponseWriter, r *http.Request) {
 
 // HandleGetDatabase godoc
 // @Summary Get a database
+// @ID get-database-by-id
 // @Description Retrieve a database configuration by ID
 // @Tags database
 // @Produce json
@@ -163,6 +166,7 @@ func HandleGetDatabase(w http.ResponseWriter, r *http.Request) {
 
 // HandleUpdateDatabase godoc
 // @Summary Update a database
+// @ID put-databases
 // @Description Update an existing database configuration
 // @Tags database
 // @Accept json
@@ -251,6 +255,7 @@ func HandleUpdateDatabase(w http.ResponseWriter, r *http.Request) {
 
 // HandleDeleteDatabase godoc
 // @Summary Delete a database
+// @ID delete-databases
 // @Description Delete a database configuration
 // @Tags database
 // @Produce json
@@ -300,6 +305,7 @@ func HandleDeleteDatabase(w http.ResponseWriter, r *http.Request) {
 
 // HandleTriggerBackup godoc
 // @Summary Trigger a backup for a database
+// @ID post-databases-backup
 // @Description Manually trigger a backup for a saved database configuration
 // @Tags database
 // @Produce json
@@ -340,6 +346,7 @@ func HandleTriggerBackup(w http.ResponseWriter, r *http.Request) {
 	// Create backup request
 	req := model.BackupRequest{
 		Type:          db.Type,
+		Name:          db.Name,
 		Host:          db.Host,
 		Port:          db.Port,
 		Username:      db.Username,

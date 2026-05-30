@@ -11,6 +11,7 @@ export type model_BackupMetadata = {
     fileSize?: number;
     host?: string;
     id?: string;
+    name?: string;
     objectKey?: string;
     /**
      * pending, generating, completed, failed

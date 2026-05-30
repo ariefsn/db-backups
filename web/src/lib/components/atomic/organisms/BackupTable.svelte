@@ -30,6 +30,10 @@
 	function formatDate(dateStr: string) {
 		return new Date(dateStr).toLocaleString();
 	}
+
+	function primaryLabel(b: model_BackupMetadata) {
+		return b.name || b.database || b.host || '-';
+	}
 </script>
 
 <div class="rounded-md border p-4 bg-card">
@@ -63,8 +67,10 @@
 						</Table.Cell>
 						<Table.Cell>
 							<div class="flex flex-col">
-								<span class="font-medium">{backup.database}</span>
-								<span class="text-xs text-muted-foreground">{backup.host}</span>
+								<span class="font-medium">{primaryLabel(backup)}</span>
+								{#if backup.host && backup.host !== primaryLabel(backup)}
+									<span class="text-xs text-muted-foreground">{backup.host}</span>
+								{/if}
 							</div>
 						</Table.Cell>
 						<Table.Cell>{formatBytes(backup.fileSize || 0)}</Table.Cell>
