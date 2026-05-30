@@ -26,13 +26,14 @@ docker-push-web:
 
 # Push a git tag to trigger the CI release build (.github/workflows/docker-publish.yml),
 # which builds & pushes BOTH images (db-backup and db-backup-web) for that version.
+# Tags are v-prefixed (v1.0.0); the image tag is the bare version (1.0.0).
 # Usage: make tag VERSION=1.0.0
 tag:
 ifndef VERSION
 	$(error VERSION is required, e.g. make tag VERSION=1.0.0)
 endif
-	git tag $(VERSION)
-	git push origin $(VERSION)
+	git tag v$(VERSION)
+	git push origin v$(VERSION)
 
 # Re-push an existing tag, overwriting it locally and on the remote (re-triggers CI).
 # Usage: make retag VERSION=1.0.0
@@ -40,9 +41,9 @@ retag:
 ifndef VERSION
 	$(error VERSION is required, e.g. make retag VERSION=1.0.0)
 endif
-	-git tag -d $(VERSION)
-	git tag $(VERSION)
-	git push --force origin $(VERSION)
+	-git tag -d v$(VERSION)
+	git tag v$(VERSION)
+	git push --force origin v$(VERSION)
 
 clean:
 	rm -f $(APP_NAME)
