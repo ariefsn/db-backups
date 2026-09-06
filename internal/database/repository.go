@@ -238,6 +238,38 @@ func (r *Repository) ListBackups(ctx context.Context, page, limit int, statuses 
 	return backups, total, nil
 }
 
+// ListBackupsForRetention retrieves every completed backup belonging to the
+// same database, newest first. Backups triggered ad-hoc (no databaseId) are
+// grouped by type/host/database instead.
+func (r *Repository) ListBackupsForRetention(ctx context.Context, databaseID, dbType, host, dbName string) ([]model.BackupMetadata, error) {
+	collection := r.db.Collection(backupsCollection)
+
+	filter := bson.M{"status": model.StatusCompleted}
+	if databaseID != "" {
+		filter["databaseId"] = databaseID
+	} else {
+		filter["databaseId"] = bson.M{"$in": []interface{}{nil, ""}}
+		filter["type"] = dbType
+		filter["host"] = host
+		filter["database"] = dbName
+	}
+
+	findOptions := options.Find().SetSort(bson.D{{Key: "createdAt", Value: -1}})
+
+	cursor, err := collection.Find(ctx, filter, findOptions)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list backups for retention: %w", err)
+	}
+	defer cursor.Close(ctx)
+
+	var backups = []model.BackupMetadata{}
+	if err := cursor.All(ctx, &backups); err != nil {
+		return nil, fmt.Errorf("failed to decode backups for retention: %w", err)
+	}
+
+	return backups, nil
+}
+
 // GetBackup retrieves a single backup by ID
 func (r *Repository) GetBackup(ctx context.Context, id string) (*model.BackupMetadata, error) {
 	collection := r.db.Collection(backupsCollection)

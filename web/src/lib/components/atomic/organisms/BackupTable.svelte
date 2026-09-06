@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { model_BackupMetadata } from '$lib/api';
+	import { primaryLabel } from '$lib/backup-utils';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Table from '$lib/components/ui/table';
@@ -29,10 +30,6 @@
 
 	function formatDate(dateStr: string) {
 		return new Date(dateStr).toLocaleString();
-	}
-
-	function primaryLabel(b: model_BackupMetadata) {
-		return b.name || b.database || b.host || '-';
 	}
 </script>
 

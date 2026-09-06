@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -56,13 +57,53 @@ func ensureDir(path string) error {
 	return os.MkdirAll(path, 0755)
 }
 
+// slugify turns an arbitrary label into a filesystem and object-key safe
+// segment: lowercase, non-alphanumerics collapsed into single dashes.
+func slugify(s string) string {
+	var b strings.Builder
+	lastDash := true // leading dashes are trimmed by starting as if one was written
+
+	for _, r := range strings.ToLower(s) {
+		switch {
+		case (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9'):
+			b.WriteRune(r)
+			lastDash = false
+		case !lastDash:
+			b.WriteByte('-')
+			lastDash = true
+		}
+	}
+
+	slug := strings.Trim(b.String(), "-")
+	if len(slug) > maxSlugLength {
+		slug = strings.Trim(slug[:maxSlugLength], "-")
+	}
+
+	return slug
+}
+
+const maxSlugLength = 40
+
 func generateFilename(req model.BackupRequest, ext string) string {
 	timestamp := time.Now().Format("20060102_150405")
 	dir := filepath.Join("backups", string(req.Type))
 	ensureDir(dir)
-	var dbPart string
-	if req.Database != "" {
-		dbPart = fmt.Sprintf("_%s", req.Database)
+
+	slug := slugify(req.DisplayName())
+	if slug == "" {
+		slug = string(req.Type)
 	}
-	return filepath.Join(dir, fmt.Sprintf("%s_%s%s.%s", req.Host, timestamp, dbPart, ext))
+
+	// The backup ID suffix keeps two concurrent jobs from writing the same
+	// path, which would otherwise overwrite each other in R2 as well.
+	var idPart string
+	if req.BackupID != "" {
+		id := req.BackupID
+		if len(id) > 8 {
+			id = id[:8]
+		}
+		idPart = fmt.Sprintf("_%s", id)
+	}
+
+	return filepath.Join(dir, fmt.Sprintf("%s_%s%s.%s", slug, timestamp, idPart, ext))
 }

@@ -99,6 +99,9 @@ func HandleCreateDatabase(w http.ResponseWriter, r *http.Request) {
 		WebhookURL:     req.WebhookURL,
 	}
 
+	// Fill in whatever the caller left out but the URI already carries.
+	db.ApplyConnectionURI()
+
 	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 	defer cancel()
 
@@ -230,6 +233,9 @@ func HandleUpdateDatabase(w http.ResponseWriter, r *http.Request) {
 	db.IsActive = req.IsActive
 	db.WebhookURL = req.WebhookURL
 
+	// Fill in whatever the caller left out but the URI already carries.
+	db.ApplyConnectionURI()
+
 	if err := backupRepo.UpdateDatabase(ctx, db); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(model.BackupResponse{
@@ -354,6 +360,7 @@ func HandleTriggerBackup(w http.ResponseWriter, r *http.Request) {
 		Database:      db.Database,
 		ConnectionURI: db.ConnectionURI,
 		WebhookURL:    db.WebhookURL,
+		DatabaseID:    db.ID.Hex(),
 	}
 
 	// Trigger backup

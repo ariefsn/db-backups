@@ -41,6 +41,10 @@ func InitializeWorker() error {
 func ProcessBackup(req model.BackupRequest) string {
 	timestamp := time.Now()
 
+	// Derive host/port/credentials/database from the connection URI so every
+	// downstream consumer (metadata, filename, dump command) sees real values.
+	req.ApplyConnectionURI()
+
 	// Create a context for initial save
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
@@ -50,6 +54,8 @@ func ProcessBackup(req model.BackupRequest) string {
 		backupID = saveBackupMetadata(ctx, req, "", "", 0, model.StatusPending, "", timestamp)
 	}
 	cancel()
+
+	req.BackupID = backupID
 
 	// Run the actual backup in a goroutine
 	go func() {
@@ -126,19 +132,17 @@ func ProcessBackup(req model.BackupRequest) string {
 				}
 			}
 
+			// Once the file lives in R2 the local copy is redundant, so drop it
+			// regardless of whether the metadata store is reachable.
+			dbFilePath := filePath
+			if objectKey != "" && RemoveLocalFile(filePath) {
+				dbFilePath = "" // Clear in DB
+			}
+
 			// Update backup metadata to completed
 			if backupRepo != nil && backupID != "" {
-				dbFilePath := filePath
-				if objectKey != "" {
-					// If uploaded successfully, delete local file and clear filePath in DB
-					if err := os.Remove(filePath); err != nil {
-						log.Printf("Failed to delete local backup file: %v", err)
-					} else {
-						log.Printf("Deleted local backup file: %s", filePath)
-						dbFilePath = "" // Clear in DB
-					}
-				}
 				updateBackupMetadata(ctx, backupID, dbFilePath, objectKey, fileSize, model.StatusCompleted, "")
+				pruneOldBackups(ctx, req)
 			}
 
 			// Add metadata
@@ -156,17 +160,18 @@ func ProcessBackup(req model.BackupRequest) string {
 
 func saveBackupMetadata(ctx context.Context, req model.BackupRequest, filePath, objectKey string, fileSize int64, status model.BackupStatus, errorMsg string, timestamp time.Time) string {
 	metadata := &model.BackupMetadata{
-		Type:      string(req.Type),
-		Name:      req.Name,
-		ObjectKey: objectKey,
-		FilePath:  filePath,
-		FileSize:  fileSize,
-		Timestamp: timestamp,
-		Status:    status,
-		Error:     errorMsg,
-		Host:      req.Host,
-		Database:  req.Database,
-		CreatedAt: primitive.NewDateTimeFromTime(timestamp),
+		Type:       string(req.Type),
+		Name:       req.DisplayName(),
+		ObjectKey:  objectKey,
+		FilePath:   filePath,
+		FileSize:   fileSize,
+		Timestamp:  timestamp,
+		Status:     status,
+		Error:      errorMsg,
+		Host:       req.Host,
+		Database:   req.Database,
+		DatabaseID: req.DatabaseID,
+		CreatedAt:  primitive.NewDateTimeFromTime(timestamp),
 	}
 
 	if err := backupRepo.SaveBackup(ctx, metadata); err != nil {

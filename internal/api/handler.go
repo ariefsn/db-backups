@@ -282,6 +282,9 @@ func HandleDeleteBackup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Delete the local copy if one is still around
+	worker.RemoveLocalFile(backup.FilePath)
+
 	// Delete from MongoDB
 	if err := backupRepo.DeleteBackup(ctx, backupID); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

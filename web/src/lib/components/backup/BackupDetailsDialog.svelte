@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { model_BackupMetadata } from '$lib/api';
 	import { BackupService } from '$lib/api';
+	import { primaryLabel } from '$lib/backup-utils';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -133,12 +134,16 @@
 					<h4 class="leading-none font-medium">Database Information</h4>
 					<div class="grid grid-cols-2 gap-4 text-sm">
 						<div>
+							<p class="mb-1 text-muted-foreground">Name</p>
+							<p class="font-medium">{primaryLabel(backup)}</p>
+						</div>
+						<div>
 							<p class="mb-1 text-muted-foreground">Type</p>
 							<p class="font-medium uppercase">{backup.type}</p>
 						</div>
 						<div>
 							<p class="mb-1 text-muted-foreground">Database Name</p>
-							<p class="font-medium">{backup.database}</p>
+							<p class="font-medium">{backup.database || '-'}</p>
 						</div>
 						<div>
 							<p class="mb-1 text-muted-foreground">Host</p>

@@ -83,6 +83,7 @@ func (s *Scheduler) AddJob(db *model.Database) error {
 					Database:      db.Database,
 					ConnectionURI: db.ConnectionURI,
 					WebhookURL:    db.WebhookURL,
+					DatabaseID:    db.ID.Hex(),
 				}
 				worker.ProcessBackup(req)
 			},

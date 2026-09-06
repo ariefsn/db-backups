@@ -34,6 +34,8 @@ definitions:
         type: string
       database:
         type: string
+      databaseId:
+        type: string
       error:
         type: string
       filePath:
@@ -64,6 +66,9 @@ definitions:
         type: string
       database:
         example: mydb
+        type: string
+      databaseId:
+        example: 6a9cad004346106ddde04457
         type: string
       host:
         example: localhost

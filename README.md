@@ -48,6 +48,9 @@ A generic database backup application capable of backing up PostgreSQL, MySQL, M
 - `MONGO_URI` - MongoDB connection string (e.g., `mongodb://localhost:27017`)
 - `MONGO_DATABASE` - MongoDB database name (default: `db-backup`)
 
+#### Optional for Retention
+- `MAX_BACKUPS_PER_DATABASE` - How many completed backups to keep per database (default: `10`). Older backups are removed from R2, from local disk, and from the metadata store right after a new backup completes. Set to `0` to keep everything.
+
 #### Optional for R2 Storage
 - `R2_ENDPOINT` - Cloudflare R2 endpoint URL
 - `R2_ACCESS_KEY_ID` - R2 access key

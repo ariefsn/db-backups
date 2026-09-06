@@ -662,6 +662,9 @@ const docTemplate = `{
                 "database": {
                     "type": "string"
                 },
+                "databaseId": {
+                    "type": "string"
+                },
                 "error": {
                     "type": "string"
                 },
@@ -709,6 +712,10 @@ const docTemplate = `{
                 "database": {
                     "type": "string",
                     "example": "mydb"
+                },
+                "databaseId": {
+                    "type": "string",
+                    "example": "6a9cad004346106ddde04457"
                 },
                 "host": {
                     "type": "string",

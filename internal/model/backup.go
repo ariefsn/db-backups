@@ -25,6 +25,19 @@ type BackupRequest struct {
 	WebhookURL    string     `json:"webhookUrl" example:"http://example.com/webhook"`
 	Database      string     `json:"database" example:"mydb"`
 	ConnectionURI string     `json:"connectionUri" example:"mongodb://user:pass@host:port/db"`
+	DatabaseID    string     `json:"databaseId,omitempty" example:"6a9cad004346106ddde04457"`
+	BackupID      string     `json:"-"`
+}
+
+// DisplayName returns the backup label, falling back through the fields that
+// are most likely to be set. It never returns an empty string.
+func (r *BackupRequest) DisplayName() string {
+	for _, candidate := range []string{r.Name, r.Database, r.Host} {
+		if candidate != "" {
+			return candidate
+		}
+	}
+	return string(r.Type)
 }
 
 type BackupResult struct {
@@ -55,18 +68,19 @@ const (
 
 // BackupMetadata represents backup information stored in MongoDB
 type BackupMetadata struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Type      string             `bson:"type" json:"type"`
-	Name      string             `bson:"name" json:"name"`
-	ObjectKey string             `bson:"objectKey" json:"objectKey"`
-	FilePath  string             `bson:"filePath" json:"filePath"`
-	FileSize  int64              `bson:"fileSize" json:"fileSize"`
-	Timestamp time.Time          `bson:"timestamp" json:"timestamp"`
-	Status    BackupStatus       `bson:"status" json:"status"` // pending, generating, completed, failed
-	Error     string             `bson:"error,omitempty" json:"error,omitempty"`
-	Host      string             `bson:"host" json:"host"`
-	Database  string             `bson:"database" json:"database"`
-	CreatedAt primitive.DateTime `bson:"createdAt" json:"createdAt" swaggertype:"string"`
+	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Type       string             `bson:"type" json:"type"`
+	Name       string             `bson:"name" json:"name"`
+	ObjectKey  string             `bson:"objectKey" json:"objectKey"`
+	FilePath   string             `bson:"filePath" json:"filePath"`
+	FileSize   int64              `bson:"fileSize" json:"fileSize"`
+	Timestamp  time.Time          `bson:"timestamp" json:"timestamp"`
+	Status     BackupStatus       `bson:"status" json:"status"` // pending, generating, completed, failed
+	Error      string             `bson:"error,omitempty" json:"error,omitempty"`
+	Host       string             `bson:"host" json:"host"`
+	Database   string             `bson:"database" json:"database"`
+	DatabaseID string             `bson:"databaseId,omitempty" json:"databaseId,omitempty"`
+	CreatedAt  primitive.DateTime `bson:"createdAt" json:"createdAt" swaggertype:"string"`
 }
 
 // BackupListResponse represents paginated backup list
